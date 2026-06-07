@@ -30,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${geistMono.variable} bg-muted antialiased`}
       >
-        <div className="mx-auto max-w-md min-h-screen bg-background shadow-2xl relative overflow-x-hidden">
+        <div className="mx-auto max-w-md min-h-screen bg-background shadow-2xl relative">
           <AppShell>{children}</AppShell>
         </div>
       </body>
