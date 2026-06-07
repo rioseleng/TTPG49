@@ -3,5 +3,7 @@
 
 | Name | Student ID | 
 | -------- | -------- |
-| Row 1    | Data A   | 
-| Row 2    | Data C   | 
+| Marsya Farzana Binti Ahmad Zalani   | 22011226   | 
+| Fatinnur Afiqah Binti Rimy Azury    | 24000305   | 
+| Rio Rezky Seleng   | 24001426   | 
+| Harith Iskandar Bin Sanawi    | 22011502   | 
