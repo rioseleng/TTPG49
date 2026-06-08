@@ -72,7 +72,7 @@ export default function HomePage() {
           />
 
           <div className="overflow-x-auto no-scrollbar">
-            <div className="flex gap-1.5">
+            <div className="grid grid-cols-5 gap-1.5">
               {CATEGORIES.map((cat) => {
                 const active =
                   selected === cat || (selected === null && cat === "ALL");
@@ -84,7 +84,7 @@ export default function HomePage() {
                       console.log("Category clicked:", cat);
                       setSelected(cat === "ALL" ? null : cat);
                     }}
-                    className={`${BASE_CLS} ${active ? ACTIVE_CLS : INACTIVE_CLS}`}
+                    className={`${BASE_CLS} w-full ${active ? ACTIVE_CLS : INACTIVE_CLS}`}
                   >
                     {cat.charAt(0) + cat.slice(1).toLowerCase()}
                   </button>
