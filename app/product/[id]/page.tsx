@@ -12,7 +12,6 @@ const CATEGORY_ICONS: Record<string, string> = {
   FOOD: "🍪",
   CLOTHING: "👕",
   ACCESSORIES: "⌚",
-  SERVICES: "🎯",
   OTHER: "📦",
 };
 

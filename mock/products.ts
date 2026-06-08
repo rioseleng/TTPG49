@@ -38,18 +38,6 @@ export const MOCK_PRODUCTS: ProductListing[] = [
     isAvailable: true,
   },
   {
-    id: "4",
-    sellerId: "seller-2",
-    title: "Private Guitar Lessons (Beginner)",
-    description:
-      "4 sessions of 1-hour beginner guitar lessons. Includes basic chords and strumming patterns.",
-    price: 80.0,
-    category: "SERVICES",
-    images: ["/mock/guitar.jpg"],
-    createdAt: new Date("2026-05-20"),
-    isAvailable: true,
-  },
-  {
     id: "5",
     sellerId: "seller-3",
     title: "Nasi Lemak with Fried Chicken",
@@ -83,18 +71,6 @@ export const MOCK_PRODUCTS: ProductListing[] = [
     category: "ACCESSORIES",
     images: ["/mock/bracelet.jpg"],
     createdAt: new Date("2026-06-03"),
-    isAvailable: true,
-  },
-  {
-    id: "8",
-    sellerId: "seller-4",
-    title: "Photography Service - Event Coverage",
-    description:
-      "Professional event photography for UTP events. Includes edited digital album of 50+ photos.",
-    price: 150.0,
-    category: "SERVICES",
-    images: ["/mock/photography.jpg"],
-    createdAt: new Date("2026-05-15"),
     isAvailable: true,
   },
 ];

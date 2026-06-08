@@ -15,7 +15,6 @@ const CATEGORY_COLORS: Record<
   FOOD: "bg-orange-100 text-orange-800 hover:bg-orange-100",
   CLOTHING: "bg-blue-100 text-blue-800 hover:bg-blue-100",
   ACCESSORIES: "bg-purple-100 text-purple-800 hover:bg-purple-100",
-  SERVICES: "bg-green-100 text-green-800 hover:bg-green-100",
   OTHER: "bg-gray-100 text-gray-800 hover:bg-gray-100",
 };
 
@@ -33,7 +32,6 @@ export function ProductCard({ product }: ProductCardProps) {
               {product.category === "FOOD" && "🍪"}
               {product.category === "CLOTHING" && "👕"}
               {product.category === "ACCESSORIES" && "⌚"}
-              {product.category === "SERVICES" && "🎯"}
               {product.category === "OTHER" && "📦"}
             </div>
           </div>

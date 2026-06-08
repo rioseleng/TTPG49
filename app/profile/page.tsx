@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -9,230 +10,191 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Avatar,
   AvatarFallback,
 } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/store/auth-store";
-import { UserCircle, Package, Store, LogOut } from "lucide-react";
-import { useState } from "react";
+import {
+  Mail,
+  Store,
+  Package,
+  Heart,
+  LogOut,
+  ShieldCheck,
+  ArrowLeft,
+} from "lucide-react";
+
+const ALLOWED_DOMAINS = ["@utp.edu.my", "@student.utp.edu.my"];
+
+function isValidUtpEmail(email: string): boolean {
+  const normalized = email.trim().toLowerCase();
+  return ALLOWED_DOMAINS.some((domain) => normalized.endsWith(domain));
+}
 
 export default function ProfilePage() {
-  const { user, login, logout } = useAuthStore();
+  const { user, loading, sendMagicLink, logout, refreshSession } =
+    useAuthStore();
   const router = useRouter();
-  const [role, setRole] = useState<"BUYER" | "SELLER">("BUYER");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    refreshSession();
+  }, [refreshSession]);
+
+  const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(role);
+    setError("");
+
+    if (!email.trim()) {
+      setError("Please enter your UTP email address.");
+      return;
+    }
+
+    if (!isValidUtpEmail(email)) {
+      setError(
+        "Access Denied: Please use your official UTP email address."
+      );
+      return;
+    }
+
+    setSending(true);
+    const err = await sendMagicLink(email);
+    setSending(false);
+
+    if (err) {
+      setError(err);
+    } else {
+      setSent(true);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="mx-auto flex max-w-lg items-center justify-center px-4 py-32">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-lg px-4 py-8 pb-4">
-      {!user && (
-        <div className="space-y-6">
+      {!user && !sent && (
+        <div className="flex flex-col items-center justify-center gap-6 pt-12">
           <div className="text-center">
-            <UserCircle className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h1 className="mt-2 text-2xl font-bold">Welcome</h1>
-            <p className="text-muted-foreground">
-              Log in or create an account to get started.
+            <Mail className="mx-auto h-14 w-14 text-muted-foreground" />
+            <h1 className="mt-4 text-2xl font-bold">Welcome to UTPreneurs</h1>
+            <p className="mt-1 text-muted-foreground">
+              Sign in to buy and sell with the UTP community.
             </p>
           </div>
 
-          <Card>
+          <Card className="w-full max-w-sm">
             <CardHeader>
-              <CardTitle>Quick Login (Mock)</CardTitle>
+              <CardTitle>Sign in</CardTitle>
               <CardDescription>
-                Select a role to test the app
+                Enter your UTP email to receive a magic login link.
               </CardDescription>
             </CardHeader>
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSendLink}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Enter your UTP Email Address</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="your@email.com"
-                    defaultValue="test@utp.edu.my"
+                    placeholder="you@utp.edu.my"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError("");
+                    }}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    defaultValue="password"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">Mock Role</Label>
-                  <Select
-                    value={role}
-                    onValueChange={(v) =>
-                      v && setRole(v as "BUYER" | "SELLER")
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="BUYER">Buyer</SelectItem>
-                      <SelectItem value="SELLER">Seller</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {error && (
+                  <p className="text-sm text-destructive">{error}</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  An authentication link will be sent to your student or staff
+                  email inbox to log you in.
+                </p>
               </CardContent>
-              <CardFooter className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  Log in as {role === "BUYER" ? "Buyer" : "Seller"}
+              <div className="px-6 pb-6">
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full"
+                  disabled={sending}
+                >
+                  {sending ? "Sending..." : "Send Magic Login Link"}
                 </Button>
-              </CardFooter>
-            </form>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Register</CardTitle>
-            </CardHeader>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                login(role);
-              }}
-            >
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="reg-name">Full Name</Label>
-                  <Input
-                    id="reg-name"
-                    placeholder="John Doe"
-                    defaultValue="New User"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-email">Email</Label>
-                  <Input
-                    id="reg-email"
-                    type="email"
-                    placeholder="your@email.com"
-                    defaultValue="new@utp.edu.my"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-password">Password</Label>
-                  <Input
-                    id="reg-password"
-                    type="password"
-                    placeholder="••••••••"
-                    defaultValue="password"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-role">I want to join as</Label>
-                  <Select
-                    value={role}
-                    onValueChange={(v) =>
-                      v && setRole(v as "BUYER" | "SELLER")
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="BUYER">Buyer</SelectItem>
-                      <SelectItem value="SELLER">Seller</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" className="w-full">
-                  Create {role === "BUYER" ? "Buyer" : "Seller"} Account
-                </Button>
-              </CardFooter>
+              </div>
             </form>
           </Card>
         </div>
       )}
 
-      {user?.role === "BUYER" && (
-        <div className="space-y-6">
-          <div className="flex flex-col items-center text-center">
-            <Avatar className="mb-3 h-20 w-20">
-              <AvatarFallback className="text-2xl">
-                {user.fullName.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <h1 className="text-xl font-bold">{user.fullName}</h1>
-            <p className="text-sm text-muted-foreground">{user.email}</p>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                My Orders
-              </CardTitle>
-              <CardDescription>
-                Track your recent purchases
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No orders yet. Start browsing the marketplace!
-              </p>
-            </CardContent>
-          </Card>
-
+      {!user && sent && (
+        <div className="flex flex-col items-center justify-center gap-6 pt-12 text-center">
+          <Mail className="mx-auto h-14 w-14 text-primary" />
+          <h1 className="text-2xl font-bold">Check your inbox</h1>
+          <p className="max-w-sm text-muted-foreground">
+            We sent a magic login link to{" "}
+            <span className="font-medium text-foreground">{email}</span>.
+            Click the link in the email to sign in.
+          </p>
           <Button
             variant="outline"
-            className="w-full"
-            onClick={() => {
-              logout();
-              router.push("/");
-            }}
+            onClick={() => setSent(false)}
           >
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Use a different email
           </Button>
         </div>
       )}
 
-      {user?.role === "SELLER" && (
+      {user && (
         <div className="space-y-6">
           <div className="flex flex-col items-center text-center">
             <Avatar className="mb-3 h-20 w-20">
               <AvatarFallback className="text-2xl">
-                {user.fullName.charAt(0)}
+                {(user.email?.charAt(0) ?? "?").toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <h1 className="text-xl font-bold">{user.fullName}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold">
+                {user.email?.split("@")[0] ?? "User"}
+              </h1>
+              <Badge
+                variant="secondary"
+                className="bg-blue-100 text-blue-700 hover:bg-blue-100"
+              >
+                <ShieldCheck className="mr-0.5 h-3 w-3" />
+                UTP Verified
+              </Badge>
+            </div>
             <p className="text-sm text-muted-foreground">{user.email}</p>
           </div>
 
-          <Link href="/dashboard" className="block">
+          <Link href="/dashboard">
             <Card className="cursor-pointer border-primary/50 bg-primary/5 transition-colors hover:bg-primary/10">
               <CardContent className="flex items-center gap-4 p-6">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                   <Store className="h-6 w-6 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold">Go to Seller Dashboard</h3>
+                  <h3 className="font-semibold">
+                    List an Item / Seller Dashboard
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    Manage your products, view sales stats, and more
+                    Add new listings and manage your shop
                   </p>
                 </div>
               </CardContent>
@@ -243,12 +205,30 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Package className="h-5 w-5" />
-                My Orders
+                My Purchases
               </CardTitle>
+              <CardDescription>
+                Track your recent orders
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="py-8 text-center text-sm text-muted-foreground">
-                No orders yet.
+                No purchases yet. Start browsing the marketplace!
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Heart className="h-5 w-5" />
+                Liked Items
+              </CardTitle>
+              <CardDescription>Items you have saved</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                No liked items yet. Tap the heart icon to save items.
               </p>
             </CardContent>
           </Card>

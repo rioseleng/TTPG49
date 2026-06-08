@@ -1,7 +1,6 @@
 export interface UserProfile {
   id: string;
-  role: "BUYER" | "SELLER" | "ADMIN";
-  fullName: string;
+  name: string;
   email: string;
   universityId?: string;
   createdAt: Date;
@@ -20,7 +19,7 @@ export interface ProductListing {
   title: string;
   description: string;
   price: number;
-  category: "FOOD" | "CLOTHING" | "ACCESSORIES" | "SERVICES" | "OTHER";
+  category: "FOOD" | "CLOTHING" | "ACCESSORIES" | "OTHER";
   images: string[];
   createdAt: Date;
   isAvailable: boolean;

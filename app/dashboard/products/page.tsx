@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { SellerGuard } from "@/components/RouteGuard";
+import { AuthGuard } from "@/components/RouteGuard";
 import { MOCK_PRODUCTS } from "@/mock/products";
 import { useAuthStore } from "@/store/auth-store";
 import { buttonVariants } from "@/components/ui/button";
@@ -23,7 +23,7 @@ export default function DashboardProductsPage() {
   );
 
   return (
-    <SellerGuard>
+    <AuthGuard>
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
@@ -107,6 +107,6 @@ export default function DashboardProductsPage() {
           </CardContent>
         </Card>
       </div>
-    </SellerGuard>
+    </AuthGuard>
   );
 }

@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -13,26 +12,65 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAuthStore } from "@/store/auth-store";
+import { ArrowLeft, Mail } from "lucide-react";
+
+const ALLOWED_DOMAINS = ["@utp.edu.my", "@student.utp.edu.my"];
+
+function isValidUtpEmail(email: string): boolean {
+  const normalized = email.trim().toLowerCase();
+  return ALLOWED_DOMAINS.some((domain) => normalized.endsWith(domain));
+}
 
 export default function LoginPage() {
-  const router = useRouter();
-  const login = useAuthStore((s) => s.login);
-  const [role, setRole] = useState<"BUYER" | "SELLER">("BUYER");
+  const sendMagicLink = useAuthStore((s) => s.sendMagicLink);
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(role);
-    router.push("/");
+    setError("");
+
+    if (!email.trim()) {
+      setError("Please enter your UTP email address.");
+      return;
+    }
+
+    if (!isValidUtpEmail(email)) {
+      setError("Access Denied: Please use your official UTP email address.");
+      return;
+    }
+
+    setSending(true);
+    const err = await sendMagicLink(email);
+    setSending(false);
+
+    if (err) {
+      setError(err);
+    } else {
+      setSent(true);
+    }
   };
+
+  if (sent) {
+    return (
+      <div className="mx-auto flex min-h-[80vh] max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
+        <Mail className="h-14 w-14 text-primary" />
+        <h1 className="text-2xl font-bold">Check your inbox</h1>
+        <p className="max-w-sm text-muted-foreground">
+          We sent a magic login link to{" "}
+          <span className="font-medium text-foreground">{email}</span>.
+          Click the link in the email to sign in.
+        </p>
+        <Button variant="outline" onClick={() => setSent(false)}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Use a different email
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex min-h-[80vh] max-w-md items-center justify-center px-4">
@@ -40,55 +78,39 @@ export default function LoginPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Welcome back</CardTitle>
           <CardDescription>
-            Mock login — select a role to test different flows
+            Enter your UTP email to receive a magic login link.
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleSendLink}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Enter your UTP Email Address</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="your@email.com"
-                defaultValue="test@utp.edu.my"
+                placeholder="you@utp.edu.my"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                defaultValue="password"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="role">Mock Role</Label>
-              <Select
-                value={role}
-                onValueChange={(v) => v && setRole(v as "BUYER" | "SELLER")}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="BUYER">Buyer</SelectItem>
-                  <SelectItem value="SELLER">Seller</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-3">
-            <Button type="submit" className="w-full">
-              Log in as {role === "BUYER" ? "Buyer" : "Seller"}
-            </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="font-medium underline underline-offset-4">
-                Register
-              </Link>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            <p className="text-xs text-muted-foreground">
+              An authentication link will be sent to your student or staff
+              email inbox to log you in.
             </p>
+          </CardContent>
+          <CardFooter>
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={sending}
+            >
+              {sending ? "Sending..." : "Send Magic Login Link"}
+            </Button>
           </CardFooter>
         </form>
       </Card>

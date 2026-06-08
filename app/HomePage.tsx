@@ -13,7 +13,6 @@ const CATEGORIES = [
   "FOOD",
   "CLOTHING",
   "ACCESSORIES",
-  "SERVICES",
   "OTHER",
 ] as const;
 
@@ -27,7 +26,7 @@ export default function HomePage() {
   const [selected, setSelected] = useState<string | null>(null);
 
   const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter((product) => {
+    return (MOCK_PRODUCTS?.filter((product) => {
       const matchCat =
         selected === null ||
         selected === "ALL" ||
@@ -38,7 +37,7 @@ export default function HomePage() {
         product.title.toLowerCase().includes(q) ||
         product.description.toLowerCase().includes(q);
       return matchCat && matchSearch;
-    });
+    })) || [];
   }, [searchQuery, selected]);
 
   return (

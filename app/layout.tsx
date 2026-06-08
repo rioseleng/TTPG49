@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AppShell } from "@/components/AppShell";
+import { SerwistRegister } from "@/components/SerwistRegister";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${geistMono.variable} bg-muted antialiased`}
       >
+        <SerwistRegister />
         <div className="mx-auto max-w-md min-h-screen bg-background shadow-2xl relative">
           <AppShell>{children}</AppShell>
         </div>

@@ -1,33 +1,43 @@
 import { create } from "zustand";
-
-type MockRole = "BUYER" | "SELLER";
-
-interface MockUser {
-  id: string;
-  role: MockRole;
-  fullName: string;
-  email: string;
-}
+import { createClient } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
 interface AuthState {
-  user: MockUser | null;
-  login: (role: MockRole) => void;
-  logout: () => void;
+  user: User | null;
+  loading: boolean;
+  sendMagicLink: (email: string) => Promise<string | null>;
+  logout: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  login: (role) =>
-    set({
-      user: {
-        id: "mock-user-1",
-        role,
-        fullName: role === "SELLER" ? "Alice Seller" : "Bob Buyer",
-        email:
-          role === "SELLER"
-            ? "alice.seller@utp.edu.my"
-            : "bob.buyer@utp.edu.my",
+  loading: true,
+
+  sendMagicLink: async (email: string) => {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
-    }),
-  logout: () => set({ user: null }),
+    });
+
+    if (error) return error.message;
+    return null;
+  },
+
+  logout: async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    set({ user: null });
+  },
+
+  refreshSession: async () => {
+    const supabase = createClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    set({ user: session?.user ?? null, loading: false });
+  },
 }));

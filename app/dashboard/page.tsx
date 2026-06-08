@@ -10,32 +10,32 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SellerGuard } from "@/components/RouteGuard";
+import { AuthGuard } from "@/components/RouteGuard";
 import { MOCK_PRODUCTS } from "@/mock/products";
 import { useAuthStore } from "@/store/auth-store";
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
-  const sellerProducts = MOCK_PRODUCTS.filter(
+  const myProducts = MOCK_PRODUCTS.filter(
     (p) => p.sellerId === user?.id
   );
 
-  const totalSales = sellerProducts
+  const totalSales = myProducts
     .filter((p) => !p.isAvailable)
     .reduce((sum, p) => sum + p.price, 0);
 
-  const activeListings = sellerProducts.filter((p) => p.isAvailable).length;
+  const activeListings = myProducts.filter((p) => p.isAvailable).length;
 
   return (
-    <SellerGuard>
+    <AuthGuard>
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Seller Dashboard
+              Dashboard
             </h1>
             <p className="text-muted-foreground">
-              Welcome back, {user?.fullName}
+              Welcome back, {user?.email?.split("@")[0] ?? "User"}
             </p>
           </div>
         </div>
@@ -80,6 +80,6 @@ export default function DashboardPage() {
           </Link>
         </div>
       </div>
-    </SellerGuard>
+    </AuthGuard>
   );
 }
