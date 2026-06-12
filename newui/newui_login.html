@@ -1,0 +1,244 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UTPreneurs | Passwordless Sign In</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#001b3d",
+                        "on-surface": "#1a1c1c",
+                        "primary": "#000a1e",
+                        "on-surface-variant": "#44474e",
+                        "primary-fixed-dim": "#aec7f6",
+                        "on-primary-fixed-variant": "#2d476f",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "surface-container-high": "#e8e8e8",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "inverse-primary": "#aec7f6",
+                        "on-tertiary-fixed": "#341100",
+                        "on-secondary-fixed": "#271900",
+                        "surface": "#f9f9f9",
+                        "surface-variant": "#e2e2e2",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#715000",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dadada",
+                        "surface-tint": "#465f88",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#d6e3ff",
+                        "background": "#f9f9f9",
+                        "inverse-surface": "#2f3131",
+                        "primary-container": "#002147",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary-container": "#3d1500",
+                        "secondary": "#7b5800",
+                        "secondary-fixed": "#ffdea6",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c4c6cf",
+                        "on-tertiary-container": "#b97958",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1a1c1c",
+                        "surface-container": "#eeeeee",
+                        "surface-container-low": "#f3f3f4",
+                        "surface-bright": "#f9f9f9",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#180500",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#6c391d",
+                        "on-primary-container": "#708ab5",
+                        "secondary-container": "#fdc34d",
+                        "outline": "#74777f",
+                        "inverse-on-surface": "#f0f1f1",
+                        "tertiary-fixed": "#ffdbcb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "gutter": "16px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "container-margin": "16px",
+                        "xl": "32px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-xl-mobile": ["Hanken Grotesk"],
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-xl-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #ffffff;
+            color: #1a1c1c;
+        }
+        /* Updated Academic Yellow Button */
+        .btn-gold {
+            background-color: #fdc34d; /* Bright Yellow per navigation bar selected state */
+            color: #001b3d; /* On-primary-fixed for high contrast on bright yellow */
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-gold:hover {
+            box-shadow: 0px 8px 24px rgba(253, 195, 77, 0.32);
+            transform: translateY(-1px);
+        }
+        .btn-gold:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md bg-surface-container-lowest">
+<!-- TopAppBar Fragmented into Transactional View (Header) -->
+<header class="w-full sticky top-0 z-50 bg-primary-container text-on-primary-container shadow-[0px_4px_12px_rgba(0,33,71,0.08)]">
+<div class="flex justify-center items-center px-gutter py-base w-full max-w-7xl mx-auto py-6">
+<div class="flex items-center gap-base select-none">
+<span class="material-symbols-outlined text-secondary-container" data-icon="storefront">storefront</span>
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-primary-container tracking-tight">UTPreneurs</h1>
+</div>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center px-gutter py-xl">
+<div class="w-full max-w-md">
+<!-- Glassmorphism Container with Level 2 Shadow -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0px_4px_12px_rgba(0,33,71,0.08)]">
+<div class="text-center mb-xl">
+<h2 class="font-headline-xl-mobile md:font-headline-xl text-headline-xl-mobile md:text-headline-xl text-on-surface mb-xs">Welcome Back</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Enter your university email to receive a secure login link.</p>
+</div>
+<form class="space-y-lg" id="auth-form">
+<!-- Custom Input Field per Brand Specs -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant ml-1 uppercase" for="email">
+                            UTP Email Address
+                        </label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-outline">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</span>
+<input class="w-full pl-10 pr-4 py-3 bg-white border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all placeholder:text-outline-variant font-body-md text-body-md" id="email" name="email" placeholder="student@utp.edu" required="" type="email">
+</div>
+</div>
+<!-- Prominent Bright Yellow Button -->
+<button class="btn-gold w-full py-4 px-6 rounded-lg font-bold text-lg flex justify-center items-center gap-sm group whitespace-nowrap" type="submit">
+<span class="">Send Authentication Link</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</form>
+<div class="mt-xl text-center">
+<p class="font-label-md text-label-md text-outline">
+                        By signing in, you agree to our <a class="text-on-secondary-container hover:underline font-bold" href="#">Academic Integrity Guidelines</a>.
+                    </p>
+</div>
+</div>
+<!-- Contextual Information (Academic Credibility) -->
+<div class="mt-xl grid grid-cols-1 md:grid-cols-2 gap-md opacity-70">
+<div class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-secondary-container" data-icon="verified_user">verified_user</span>
+<div>
+<p class="font-label-md text-label-md font-bold text-on-surface">Secure Access</p>
+<p class="text-[10px] leading-tight">Encrypted sessions verified by UTP internal directory services.</p>
+</div>
+</div>
+<div class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-secondary-container" data-icon="bolt">bolt</span>
+<div>
+<p class="font-label-md text-label-md font-bold text-on-surface">One-Click Entry</p>
+<p class="text-[10px] leading-tight">No passwords to remember. Access your dashboard instantly via email.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer for Transactional Integrity -->
+<footer class="py-lg border-t border-outline-variant/30 text-center">
+<p class="font-label-md text-label-md text-on-surface-variant">
+            © 2026 UTPrenerus</p>
+</footer>
+<!-- Micro-interactions Script -->
+<script>
+        document.getElementById('auth-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('email');
+            const button = e.target.querySelector('button');
+            const originalContent = button.innerHTML;
+
+            // Simple loading state simulation
+            button.disabled = true;
+            button.innerHTML = `
+                <span class="material-symbols-outlined animate-spin" data-icon="progress_activity">progress_activity</span>
+                <span>Authenticating...</span>
+            `;
+            button.classList.add('opacity-80');
+
+            setTimeout(() => {
+                button.innerHTML = `
+                    <span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+                    <span>Email Sent!</span>
+                `;
+                button.classList.remove('btn-gold');
+                button.classList.add('bg-green-600', 'text-white');
+                emailInput.value = '';
+                emailInput.disabled = true;
+                
+                // Show success message
+                const successMsg = document.createElement('p');
+                successMsg.className = 'text-center text-green-700 font-body-md mt-4 animate-bounce';
+                successMsg.innerText = 'Check your inbox (and spam folder) for the login link.';
+                e.target.appendChild(successMsg);
+            }, 1800);
+        });
+
+        // Focus state visual feedback logic
+        const emailField = document.getElementById('email');
+        emailField.addEventListener('focus', () => {
+            emailField.parentElement.classList.add('scale-[1.01]');
+            emailField.parentElement.style.transition = 'transform 0.2s ease';
+        });
+        emailField.addEventListener('blur', () => {
+            emailField.parentElement.classList.remove('scale-[1.01]');
+        });
+    </script>
+</body></html>

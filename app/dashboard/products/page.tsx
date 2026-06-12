@@ -35,7 +35,7 @@ export default function DashboardProductsPage() {
             </p>
           </div>
           <Link
-            href="#"
+            href="/dashboard/products/add"
             className={cn(buttonVariants({ variant: "default" }))}
           >
             Add New Product

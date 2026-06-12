@@ -1,31 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { useAuthStore } from "@/store/auth-store";
-import {
-  Mail,
   Store,
-  Package,
+  Receipt,
+  Tag,
   Heart,
   LogOut,
-  ShieldCheck,
-  ArrowLeft,
+  ChevronRight,
+  Pencil,
 } from "lucide-react";
+
+// TEMPORARY: Mock user injected for UI development.
+// Restore the real auth store import and block below when auth is ready.
+/*
+import { useAuthStore } from "@/store/auth-store";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Mail, ArrowLeft, ArrowRight } from "lucide-react";
 
 const ALLOWED_DOMAINS = ["@utp.edu.my", "@student.utp.edu.my"];
 
@@ -33,8 +25,16 @@ function isValidUtpEmail(email: string): boolean {
   const normalized = email.trim().toLowerCase();
   return ALLOWED_DOMAINS.some((domain) => normalized.endsWith(domain));
 }
+*/
 
 export default function ProfilePage() {
+  // TEMPORARY: Hardcoded mock user replaces real auth store.
+  const user = { email: "alex_21001234@utp.edu.my" };
+  const logout = () => {};
+  const initials = user.email.charAt(0).toUpperCase();
+  const username = user.email.split("@")[0].split("_")[0];
+
+  /*
   const { user, loading, sendMagicLink, logout, refreshSession } =
     useAuthStore();
   const router = useRouter();
@@ -42,6 +42,7 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     refreshSession();
@@ -81,186 +82,235 @@ export default function ProfilePage() {
       </div>
     );
   }
+  */
 
-  return (
-    <div className="mx-auto max-w-lg px-4 py-8 pb-4">
-      {!user && !sent && (
-        <div className="flex flex-col items-center gap-7 pt-8">
-          <div className="space-y-1.5 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Welcome to UTPreneurs
-            </h1>
-            <p className="text-balance text-sm text-muted-foreground">
-              Sign in to buy and sell with the UTP community.
-            </p>
-          </div>
-
-          <div className="w-full rounded-2xl border bg-card/80 p-6 shadow-xl shadow-black/5 backdrop-blur-xl sm:p-8">
-            <form onSubmit={handleSendLink} className="space-y-5">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  UTP Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="your@utp.edu.my"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setError("");
-                    }}
-                    className="h-12 w-full rounded-xl border bg-background pl-10 pr-3.5 text-sm outline-none transition-all placeholder:text-muted-foreground/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
-                  />
-                </div>
-                <p className="mt-2.5 text-left text-xs leading-relaxed text-muted-foreground/70">
-                  An authentication link will be sent to your email, use it to login
-                </p>
-              </div>
-
-              {error && (
-                <p className="animate-in fade-in slide-in-from-top-1 text-sm font-medium text-destructive duration-200">
-                  {error}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={sending}
-                className="group relative w-full overflow-hidden rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold tracking-wide text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
-              >
-                <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                {sending ? (
-                  <span className="inline-flex items-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
-                    Sending...
-                  </span>
-                ) : (
-                  "Send Link"
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {!user && sent && (
-        <div className="flex flex-col items-center gap-7 pt-8 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
-            <Mail className="h-7 w-7 text-primary" />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Check your inbox
-            </h1>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              We sent a magic login link to{" "}
-              <span className="font-medium text-foreground">{email}</span>.
-              Click the link in the email to sign in.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setSent(false)}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Use a different email
-          </button>
-        </div>
-      )}
-
-      {user && (
-        <div className="space-y-6">
-          <div className="flex flex-col items-center text-center">
-            <Avatar className="mb-3 h-20 w-20">
-              <AvatarFallback className="text-2xl">
-                {(user.email?.charAt(0) ?? "?").toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold">
-                {user.email?.split("@")[0] ?? "User"}
-              </h1>
-              <Badge
-                variant="secondary"
-                className="bg-blue-100 text-blue-700 hover:bg-blue-100"
-              >
-                <ShieldCheck className="mr-0.5 h-3 w-3" />
-                UTP Verified
-              </Badge>
+  if (user) {
+    return (
+      <div className="flex flex-col pb-6">
+        {/* User Hero */}
+        <section className="py-8 flex flex-col items-center text-center">
+          <div className="relative mb-4">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[#f3f3f4] shadow-[0px_4px_12px_rgba(0,33,71,0.08)] bg-[#002147] flex items-center justify-center text-white text-3xl font-bold">
+              {initials}
             </div>
-            <p className="text-sm text-muted-foreground">{user.email}</p>
+            <button className="absolute bottom-0 right-0 bg-[#fdc34d] text-[#271900] w-8 h-8 rounded-full flex items-center justify-center shadow-md active:scale-90 transition-transform">
+              <Pencil className="w-[18px] h-[18px]" />
+            </button>
+          </div>
+          <h2 className="font-headline text-headline-lg text-[#002147]">
+            {username}
+          </h2>
+          <p className="font-body text-body-md text-[#44474e]">
+            {user.email}
+          </p>
+          <div className="flex gap-3 mt-4">
+            <span className="bg-[#e8e8e8] text-[#44474e] px-3 py-1 rounded-xl font-label text-label-md">
+              4.9 ★ (12 Reviews)
+            </span>
+          </div>
+        </section>
+
+        {/* Navigation List Groups */}
+        <div className="space-y-6 px-4">
+          {/* Activity */}
+          <div>
+            <h3 className="font-label text-label-md text-[#44474e] uppercase tracking-widest px-1 mb-2">
+              Activity
+            </h3>
+            <div className="bg-white rounded-xl overflow-hidden border border-[#c4c6cf]/30 shadow-[0px_4px_12px_rgba(0,33,71,0.08)]">
+              <Link
+                href="/dashboard"
+                className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group border-b border-[#c4c6cf]/20"
+              >
+                <div className="flex items-center gap-4">
+                  <Store className="w-5 h-5 text-[#002147]" />
+                  <span className="font-body text-body-lg text-[#1a1c1c] font-bold">
+                    Seller Dashboard
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-[#002147] text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    SELLER
+                  </span>
+                  <ChevronRight className="w-5 h-5 text-[#74777f] group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+
+              <button className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group border-b border-[#c4c6cf]/20">
+                <div className="flex items-center gap-4">
+                  <Receipt className="w-5 h-5 text-[#002147]" />
+                  <span className="font-body text-body-lg text-[#1a1c1c]">
+                    Order History
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-[#fdc34d] text-[#271900] text-[10px] px-1.5 rounded-full font-bold">
+                    3
+                  </span>
+                  <ChevronRight className="w-5 h-5 text-[#74777f] group-hover:translate-x-1 transition-transform" />
+                </div>
+              </button>
+
+              <button className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group border-b border-[#c4c6cf]/20">
+                <div className="flex items-center gap-4">
+                  <Tag className="w-5 h-5 text-[#002147]" />
+                  <span className="font-body text-body-lg text-[#1a1c1c]">
+                    Sales History
+                  </span>
+                </div>
+                <ChevronRight className="w-5 h-5 text-[#74777f] group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              <button className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group">
+                <div className="flex items-center gap-4">
+                  <Heart className="w-5 h-5 text-[#002147]" />
+                  <span className="font-body text-body-lg text-[#1a1c1c]">
+                    Wishlist
+                  </span>
+                </div>
+                <ChevronRight className="w-5 h-5 text-[#74777f] group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
           </div>
 
-          <Link href="/dashboard">
-            <Card className="cursor-pointer border-primary/50 bg-primary/5 transition-colors hover:bg-primary/10">
-              <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <Store className="h-6 w-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold">
-                    List an Item / Seller Dashboard
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Add new listings and manage your shop
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                My Purchases
-              </CardTitle>
-              <CardDescription>
-                Track your recent orders
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No purchases yet. Start browsing the marketplace!
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5" />
-                Liked Items
-              </CardTitle>
-              <CardDescription>Items you have saved</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No liked items yet. Tap the heart icon to save items.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Button
-            variant="outline"
-            className="w-full"
+          {/* Logout */}
+          <button
             onClick={() => {
               logout();
-              router.push("/");
+              window.location.href = "/";
             }}
+            className="w-full py-4 px-4 flex items-center justify-center gap-3 text-[#ba1a1a] border-2 border-[#ba1a1a]/20 rounded-xl font-headline text-headline-sm hover:bg-[#ba1a1a]/5 active:scale-95 transition-all"
           >
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
+            <LogOut className="w-5 h-5" />
+            Log Out
+          </button>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  // TEMPORARY: Login form return block is commented out while mock user is active.
+  // Uncomment when restoring real auth.
+  /*
+  return (
+    <div className="flex min-h-screen flex-col bg-white">
+      <main className="flex flex-grow items-center justify-center px-4">
+        <div className="w-full max-w-md -mt-6">
+          {!sent ? (
+            <>
+              <div className="rounded-xl bg-white p-8 shadow-[0_0_60px_rgba(11,27,61,0.25)]">
+                <div className="mb-8 text-center">
+                  <h2 className="text-[28px] font-bold leading-9 tracking-tight text-[#1a1c1c] md:text-[32px]">
+                    Welcome Back
+                  </h2>
+                  <p className="mt-1 text-sm text-[#44474e]">
+                    Enter your university email to receive a secure login link.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSendLink} className="space-y-6">
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="email"
+                      className="ml-1 text-[11px] font-semibold uppercase tracking-wide text-[#44474e]"
+                    >
+                      UTP Email Address
+                    </label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#74777f]">
+                        <Mail
+                          className={`h-4 w-4 transition-colors ${
+                            focused ? "text-[#002147]" : ""
+                          }`}
+                        />
+                      </span>
+                      <input
+                        id="email"
+                        type="email"
+                        placeholder="student@utp.edu"
+                        value={email}
+                        onFocus={() => setFocused(true)}
+                        onBlur={() => setFocused(false)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setError("");
+                        }}
+                        className="w-full rounded-lg border border-[#c4c6cf] bg-white py-3 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-[#c4c6cf] focus:border-[#002147] focus:ring-2 focus:ring-[#002147]"
+                      />
+                    </div>
+                  </div>
+
+                  {error && (
+                    <p className="animate-in fade-in slide-in-from-top-1 text-sm font-medium text-destructive duration-200">
+                      {error}
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={sending}
+                    className="group flex w-full items-center justify-center gap-3 rounded-lg bg-[#fdc34d] px-6 py-4 text-lg font-bold text-[#001b3d] shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0px_8px_24px_rgba(253,195,77,0.32)] active:scale-[0.98] disabled:opacity-70"
+                  >
+                    {sending ? (
+                      <span className="flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#001b3d]/30 border-t-[#001b3d]" />
+                        Authenticating...
+                      </span>
+                    ) : (
+                      <>
+                        <span>Send Authentication Link</span>
+                        <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                <div className="mt-6 text-center">
+                  <p className="text-[11px] font-semibold tracking-wide text-[#74777f]">
+                    By signing in, you agree to our{" "}
+                    <a
+                      href="#"
+                      className="font-bold text-[#715000] hover:underline"
+                    >
+                      Academic Integrity Guidelines
+                    </a>
+                    .
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="rounded-xl bg-white p-8 text-center shadow-[0_0_60px_rgba(11,27,61,0.25)]">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#fdc34d]/20">
+                <Mail className="h-7 w-7 text-[#715000]" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight text-[#1a1c1c]">
+                Check your inbox
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-[#44474e]">
+                We sent a magic login link to{" "}
+                <span className="font-medium text-[#1a1c1c]">{email}</span>.
+                Click the link in the email to sign in.
+              </p>
+              <button
+                type="button"
+                onClick={() => setSent(false)}
+                className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[#715000] underline-offset-4 transition-colors hover:text-[#001b3d] hover:underline"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Use a different email
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
+
+      <footer className="border-t border-[#c4c6cf]/30 py-6 text-center">
+        <p className="text-[11px] font-semibold tracking-wide text-[#44474e]">
+          &copy; 2026 UTPreneurs
+        </p>
+      </footer>
     </div>
   );
+  */
 }

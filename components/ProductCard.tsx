@@ -1,22 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
 import type { ProductListing } from "@/types";
-
-const CATEGORY_COLORS: Record<
-  ProductListing["category"],
-  string
-> = {
-  FOOD: "bg-orange-100 text-orange-800 hover:bg-orange-100",
-  CLOTHING: "bg-blue-100 text-blue-800 hover:bg-blue-100",
-  ACCESSORIES: "bg-purple-100 text-purple-800 hover:bg-purple-100",
-  OTHER: "bg-gray-100 text-gray-800 hover:bg-gray-100",
-};
 
 interface ProductCardProps {
   product: ProductListing;
@@ -25,29 +9,25 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/product/${product.id}`}>
-      <Card className="group h-full overflow-hidden transition-shadow hover:shadow-lg">
-        <CardHeader className="p-0">
-          <div className="aspect-square w-full bg-muted">
-            <div className="flex h-full items-center justify-center text-4xl">
-              {product.category === "FOOD" && "🍪"}
-              {product.category === "CLOTHING" && "👕"}
-              {product.category === "ACCESSORIES" && "⌚"}
-              {product.category === "OTHER" && "📦"}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-2">
-          <Badge
-            variant="secondary"
-            className={`mb-1 text-[10px] px-1.5 py-0 ${CATEGORY_COLORS[product.category]}`}
+      <div className="group h-full overflow-hidden bg-white rounded-lg shadow-[0px_4px_12px_rgba(0,33,71,0.08)] transition-all hover:shadow-[0px_8px_24px_rgba(0,33,71,0.12)] hover:-translate-y-0.5 active:scale-[0.98]">
+        <div className="aspect-square w-full bg-[#f3f3f4] flex items-center justify-center text-4xl">
+          {product.category === "FOOD" && "🍪"}
+          {product.category === "CLOTHING" && "👕"}
+          {product.category === "ACCESSORIES" && "⌚"}
+          {product.category === "OTHER" && "📦"}
+        </div>
+        <div className="p-3 flex flex-col gap-1.5">
+          <span
+            className="self-start font-label text-label-md px-[6px] py-[1px] rounded-sm"
+            style={{ backgroundColor: "rgba(0,33,71,0.05)", color: "#002147" }}
           >
             {product.category}
-          </Badge>
-          <h3 className="truncate text-sm font-medium leading-tight">
+          </span>
+          <h3 className="font-body text-sm font-medium text-[#1a1c1c] truncate leading-tight">
             {product.title}
           </h3>
-          <div className="mt-2 flex items-center justify-between">
-            <span className="text-lg font-bold">
+          <div className="flex items-center justify-between mt-auto pt-1">
+            <span className="font-headline text-lg font-bold text-[#B8860B]">
               RM {product.price.toFixed(2)}
             </span>
             <button
@@ -55,14 +35,14 @@ export function ProductCard({ product }: ProductCardProps) {
                 e.preventDefault();
                 e.stopPropagation();
               }}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform active:scale-90"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#002147] text-white shadow-[0px_2px_6px_rgba(0,33,71,0.15)] transition-transform active:scale-90"
             >
               <Plus className="h-4 w-4" />
               <span className="sr-only">Quick add</span>
             </button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </Link>
   );
 }

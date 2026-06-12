@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UTPreneurs | Marketplace</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            colors: {
+                "surface": "#f9f9f9",
+                "surface-dim": "#dadada",
+                "surface-bright": "#f9f9f9",
+                "surface-container-lowest": "#ffffff",
+                "surface-container-low": "#f3f3f4",
+                "surface-container": "#eeeeee",
+                "surface-container-high": "#e8e8e8",
+                "surface-container-highest": "#e2e2e2",
+                "on-surface": "#1a1c1c",
+                "on-surface-variant": "#44474e",
+                "inverse-surface": "#2f3131",
+                "inverse-on-surface": "#f0f1f1",
+                "outline": "#74777f",
+                "outline-variant": "#c4c6cf",
+                "surface-tint": "#465f88",
+                "primary": "#000a1e",
+                "on-primary": "#ffffff",
+                "primary-container": "#002147",
+                "on-primary-container": "#708ab5",
+                "inverse-primary": "#aec7f6",
+                "secondary": "#7b5800",
+                "on-secondary": "#ffffff",
+                "secondary-container": "#fdc34d",
+                "on-secondary-container": "#715000",
+                "tertiary": "#180500",
+                "on-tertiary": "#ffffff",
+                "tertiary-container": "#3d1500",
+                "on-tertiary-container": "#b97958",
+                "error": "#ba1a1a",
+                "on-error": "#ffffff",
+                "error-container": "#ffdad6",
+                "on-error-container": "#93000a",
+                "primary-fixed": "#d6e3ff",
+                "primary-fixed-dim": "#aec7f6",
+                "on-primary-fixed": "#001b3d",
+                "on-primary-fixed-variant": "#2d476f",
+                "secondary-fixed": "#ffdea6",
+                "secondary-fixed-dim": "#f7bd48",
+                "on-secondary-fixed": "#271900",
+                "on-secondary-fixed-variant": "#5d4200",
+                "tertiary-fixed": "#ffdbcb",
+                "tertiary-fixed-dim": "#ffb691",
+                "on-tertiary-fixed": "#341100",
+                "on-tertiary-fixed-variant": "#6c391d",
+                "background": "#f9f9f9",
+                "on-background": "#1a1c1c",
+                "academic-gold": "#B8860B",
+                "oxford-blue": "#002147",
+            },
+            borderRadius: {
+                DEFAULT: "8px",
+                sm: "4px",
+                md: "12px",
+                lg: "16px",
+                xl: "24px",
+                full: "9999px",
+            },
+            spacing: {
+                xs: "4px",
+                sm: "12px",
+                base: "8px",
+                md: "16px",
+                lg: "24px",
+                xl: "32px",
+                gutter: "16px",
+                "container-margin": "16px",
+            },
+            fontFamily: {
+                headline: ["Hanken Grotesk", "sans-serif"],
+                body: ["Inter", "sans-serif"],
+                label: ["Hanken Grotesk", "sans-serif"],
+            },
+            fontSize: {
+                "headline-xl": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                "headline-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700" }],
+                "headline-md": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "600" }],
+                "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                "headline-xl-mobile": ["28px", { lineHeight: "36px", fontWeight: "700" }],
+            },
+            boxShadow: {
+                "card": "0px 4px 12px rgba(0, 33, 71, 0.08)",
+                "modal": "0px 8px 24px rgba(0, 33, 71, 0.12)",
+                "gold": "0px 8px 24px rgba(184, 134, 11, 0.32)",
+            },
+        },
+    },
+}
+</script>
+<style>
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    display: inline-block;
+    vertical-align: middle;
+}
+body {
+    background-color: #ffffff;
+    color: #1a1c1c;
+}
+.btn-gold {
+    background-color: #B8860B;
+    color: #ffffff;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-gold:hover {
+    box-shadow: 0px 8px 24px rgba(184, 134, 11, 0.32);
+    transform: translateY(-1px);
+}
+.btn-gold:active {
+    transform: scale(0.98);
+}
+.btn-secondary {
+    border: 2px solid #002147;
+    color: #002147;
+    background: transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-secondary:hover {
+    background: rgba(0, 33, 71, 0.05);
+    box-shadow: 0px 4px 12px rgba(0, 33, 71, 0.08);
+}
+.chip {
+    background: rgba(0, 33, 71, 0.05);
+    color: #002147;
+    font-family: "Hanken Grotesk", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 16px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+.chip:hover {
+    background: rgba(0, 33, 71, 0.10);
+}
+.chip.active {
+    background: #002147;
+    color: #ffffff;
+}
+.price-tag {
+    color: #B8860B;
+    font-weight: 700;
+}
+.search-input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    background: #ffffff;
+    border: 1px solid #c4c6cf;
+    border-radius: 8px;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    color: #1a1c1c;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.search-input::placeholder {
+    color: #c4c6cf;
+}
+.search-input:focus {
+    border-color: #002147;
+    box-shadow: 0 0 0 2px rgba(0, 33, 71, 0.12);
+}
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #74777f;
+    pointer-events: none;
+}
+.product-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 33, 71, 0.08);
+    overflow: hidden;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+.product-card:hover {
+    box-shadow: 0px 8px 24px rgba(0, 33, 71, 0.12);
+    transform: translateY(-2px);
+}
+.product-card:active {
+    transform: scale(0.98);
+}
+.product-card-img {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    background: #f3f3f4;
+}
+.product-card-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+.quick-add-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: #002147;
+    color: #ffffff;
+    box-shadow: 0px 2px 6px rgba(0, 33, 71, 0.15);
+    transition: all 0.15s ease;
+}
+.quick-add-btn:active {
+    transform: scale(0.9);
+}
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.category-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 0 8px 0;
+}
+.category-scroll::-webkit-scrollbar {
+    display: none;
+}
+</style>
+</head>
+<body class="bg-surface-container-lowest font-body text-body-md min-h-screen flex flex-col">
+
+<!-- Top Navigation Bar -- Oxford Blue -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-[#002147] shadow-[0px_4px_12px_rgba(0,33,71,0.08)]">
+    <div class="max-w-7xl mx-auto flex items-center justify-center h-14 px-gutter">
+        <div class="flex items-center gap-2 select-none">
+            <span class="material-symbols-outlined text-[#fdc34d]">storefront</span>
+            <h1 class="font-headline text-headline-lg font-bold text-white tracking-tight">UTPreneurs</h1>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-1 pt-14 pb-24">
+
+    <!-- Sticky Filters Bar -->
+    <div class="sticky top-14 z-30 bg-white border-b border-[#e2e2e2]">
+        <div class="px-gutter pb-3 pt-3">
+
+            <!-- Title & Description -->
+            <h2 class="font-headline text-headline-sm text-[#002147] mb-0.5">Marketplace</h2>
+            <p class="font-body text-body-md text-[#44474e] mb-3">Discover products from UTP students, staff, and alumni.</p>
+
+            <!-- Search Field -->
+            <div class="relative mb-3">
+                <span class="search-icon material-symbols-outlined">search</span>
+                <input class="search-input" id="search-input" type="text" placeholder="Search products..." autocomplete="off">
+            </div>
+
+            <!-- Category Chips -->
+            <div class="category-scroll" id="category-bar">
+                <button class="chip active" data-cat="ALL">ALL</button>
+                <button class="chip" data-cat="FOOD">FOOD</button>
+                <button class="chip" data-cat="CLOTHING">CLOTHING</button>
+                <button class="chip" data-cat="ACCESSORIES">ACCESSORIES</button>
+                <button class="chip" data-cat="OTHER">OTHER</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="px-2 pt-3" id="product-container">
+        <div class="grid grid-cols-2 gap-3" id="product-grid">
+            <!-- Injected by JS -->
+        </div>
+    </div>
+
+    <!-- Empty State (hidden by default) -->
+    <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-center px-gutter">
+        <span class="material-symbols-outlined text-[#74777f] text-5xl mb-3">inventory_2</span>
+        <p class="font-headline text-headline-sm text-[#1a1c1c] mb-1">No products found</p>
+        <p class="font-body text-body-md text-[#44474e]">Try adjusting your search or filter.</p>
+    </div>
+
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-[#e2e2e2] bg-white/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto flex h-16 items-center justify-around">
+        <a href="#" class="flex flex-col items-center justify-center gap-0.5 px-5 py-2 text-[#002147] transition-colors">
+            <span class="material-symbols-outlined">home</span>
+            <span class="font-label text-label-md">Home</span>
+        </a>
+        <a href="#" class="flex flex-col items-center justify-center gap-0.5 px-5 py-2 text-[#74777f] hover:text-[#1a1c1c] transition-colors">
+            <span class="material-symbols-outlined">shopping_cart</span>
+            <span class="font-label text-label-md">Cart</span>
+        </a>
+        <a href="#" class="flex flex-col items-center justify-center gap-0.5 px-5 py-2 text-[#74777f] hover:text-[#1a1c1c] transition-colors">
+            <span class="material-symbols-outlined">person</span>
+            <span class="font-label text-label-md">Profile</span>
+        </a>
+    </div>
+</nav>
+
+<script>
+// ----------------------------------------------------------------
+// Mock Data (mirrors mock/products.ts)
+// ----------------------------------------------------------------
+const MOCK_PRODUCTS = [
+    { id: "1", sellerId: "seller-1", title: "Homemade Chocolate Cookies", description: "Freshly baked chocolate chip cookies, perfect for study snacks. Halal certified ingredients used.", price: 8.00, category: "FOOD", images: [], isAvailable: true },
+    { id: "2", sellerId: "seller-1", title: "UTP Hoodie - Navy Blue", description: "Official UTP hoodie, navy blue, size L. Lightly worn, in excellent condition.", price: 45.00, category: "CLOTHING", images: [], isAvailable: true },
+    { id: "3", sellerId: "seller-2", title: "Casio Scientific Calculator fx-570EX", description: "Used for one semester only. Fully functional, comes with original box and manual.", price: 55.00, category: "ACCESSORIES", images: [], isAvailable: true },
+    { id: "5", sellerId: "seller-3", title: "Nasi Lemak with Fried Chicken", description: "Authentic Malaysian nasi lemak with crispy fried chicken. Order before 10 AM for lunch delivery.", price: 7.00, category: "FOOD", images: [], isAvailable: true },
+    { id: "6", sellerId: "seller-3", title: "Study Notes - Thermodynamics", description: "Comprehensive handwritten notes covering all chapters. Perfect for exam prep.", price: 25.00, category: "OTHER", images: [], isAvailable: false },
+    { id: "7", sellerId: "seller-1", title: "Handmade Beaded Bracelet", description: "Unique handmade bracelet with UTP colors. Adjustable size, great as a gift.", price: 12.00, category: "ACCESSORIES", images: [], isAvailable: true },
+];
+
+const CATEGORY_ICONS = {
+    FOOD: "🍪",
+    CLOTHING: "👕",
+    ACCESSORIES: "⌚",
+    OTHER: "📦",
+};
+
+const CATEGORY_COLORS = {
+    FOOD: "bg-orange-100 text-orange-800",
+    CLOTHING: "bg-blue-100 text-blue-800",
+    ACCESSORIES: "bg-purple-100 text-purple-800",
+    OTHER: "bg-gray-100 text-gray-800",
+};
+
+// ----------------------------------------------------------------
+// State
+// ----------------------------------------------------------------
+let selectedCategory = "ALL";
+let searchQuery = "";
+
+const searchInput = document.getElementById("search-input");
+const productGrid = document.getElementById("product-grid");
+const emptyState = document.getElementById("empty-state");
+const categoryButtons = document.querySelectorAll(".chip[data-cat]");
+
+// ----------------------------------------------------------------
+// Render
+// ----------------------------------------------------------------
+function renderProducts() {
+    const q = searchQuery.toLowerCase().trim();
+    const filtered = MOCK_PRODUCTS.filter((p) => {
+        const matchCat = selectedCategory === "ALL" || p.category === selectedCategory;
+        const matchSearch = !q || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+        return matchCat && matchSearch;
+    });
+
+    if (filtered.length === 0) {
+        productGrid.innerHTML = "";
+        productGrid.parentElement.classList.add("hidden");
+        emptyState.classList.remove("hidden");
+        emptyState.style.display = "flex";
+        return;
+    }
+
+    emptyState.classList.add("hidden");
+    emptyState.style.display = "none";
+    productGrid.parentElement.classList.remove("hidden");
+
+    productGrid.innerHTML = filtered.map((p) => {
+        const icon = CATEGORY_ICONS[p.category] || "📦";
+        const colorCls = CATEGORY_COLORS[p.category] || "bg-gray-100 text-gray-800";
+        return `
+            <a href="/product/${p.id}" class="product-card group">
+                <div class="product-card-img">${icon}</div>
+                <div class="product-card-body">
+                    <span class="chip ${colorCls} self-start text-[10px] px-1.5 py-0" style="background:rgba(0,33,71,0.05);color:#002147;letter-spacing:0.05em;">${p.category}</span>
+                    <h3 class="font-body text-sm font-medium text-[#1a1c1c] truncate leading-tight">${p.title}</h3>
+                    <div class="flex items-center justify-between mt-auto pt-1">
+                        <span class="price-tag font-headline text-lg">RM ${p.price.toFixed(2)}</span>
+                        <button class="quick-add-btn" data-id="${p.id}" onclick="event.preventDefault();event.stopPropagation();quickAdd('${p.id}')">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </button>
+                    </div>
+                </div>
+            </a>
+        `;
+    }).join("");
+}
+
+function quickAdd(id) {
+    // Quick add feedback
+    const btn = document.querySelector(`.quick-add-btn[data-id="${id}"]`);
+    if (btn) {
+        btn.innerHTML = '<span class="material-symbols-outlined text-sm">check</span>';
+        btn.style.background = '#B8860B';
+        setTimeout(() => {
+            btn.innerHTML = '<span class="material-symbols-outlined text-sm">add</span>';
+            btn.style.background = '#002147';
+        }, 1000);
+    }
+}
+
+// ----------------------------------------------------------------
+// Events
+// ----------------------------------------------------------------
+searchInput.addEventListener("input", (e) => {
+    searchQuery = e.target.value;
+    renderProducts();
+});
+
+categoryButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+        categoryButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        selectedCategory = btn.dataset.cat;
+        renderProducts();
+    });
+});
+
+// ----------------------------------------------------------------
+// Initial Render
+// ----------------------------------------------------------------
+renderProducts();
+</script>
+
+</body>
+</html>

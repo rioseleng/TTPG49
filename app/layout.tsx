@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Inter } from "next/font/google";
+import { Inter, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AppShell } from "@/components/AppShell";
 import { SerwistRegister } from "@/components/SerwistRegister";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+
+const hanken = Hanken_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-hanken",
+});
 
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
@@ -29,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", inter.variable)}>
       <body
-        className={`${inter.variable} ${geistMono.variable} bg-muted antialiased`}
+        className={`${inter.variable} ${hanken.variable} ${geistMono.variable} bg-white antialiased`}
       >
         <SerwistRegister />
         <div className="mx-auto max-w-md min-h-screen bg-background shadow-2xl relative">

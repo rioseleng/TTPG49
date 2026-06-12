@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useAuthStore } from "@/store/auth-store";
-import { Mail, ArrowLeft, Sparkles } from "lucide-react";
+import { Mail, ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
 
 const ALLOWED_DOMAINS = ["@utp.edu.my", "@student.utp.edu.my"];
 
@@ -46,28 +47,24 @@ export default function LoginPage() {
 
   if (sent) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/[0.02] p-4">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/[0.07] via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-primary/[0.04] via-transparent to-transparent" />
-        <div className="relative w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
-          <div className="space-y-7 rounded-2xl border bg-card/80 p-8 text-center shadow-2xl shadow-black/5 backdrop-blur-xl sm:p-10">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
-              <Mail className="h-7 w-7 text-primary" />
+      <div className="flex flex-col items-center justify-center px-4 py-20 text-center">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-xl p-8 shadow-[0px_4px_12px_rgba(0,33,71,0.08)]">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#fdc34d]/20">
+              <Mail className="h-7 w-7 text-[#715000]" />
             </div>
-            <div className="space-y-2">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Check your inbox
-              </h1>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                We sent a magic login link to{" "}
-                <span className="font-medium text-foreground">{email}</span>.
-                Click the link in the email to sign in.
-              </p>
-            </div>
+            <h2 className="font-headline text-[28px] md:text-[32px] font-bold text-[#1a1c1c] mb-2">
+              Check your inbox
+            </h2>
+            <p className="font-body text-body-md text-[#44474e] max-w-sm mx-auto">
+              We sent a magic login link to{" "}
+              <span className="font-semibold text-[#1a1c1c]">{email}</span>.
+              Click the link in the email to sign in.
+            </p>
             <button
               type="button"
               onClick={() => setSent(false)}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[#715000] underline-offset-4 transition-colors hover:text-[#001b3d] hover:underline"
             >
               <ArrowLeft className="h-4 w-4" />
               Use a different email
@@ -79,45 +76,42 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/[0.02] p-4">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/[0.07] via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-primary/[0.04] via-transparent to-transparent" />
-
-      <div className="absolute left-1/2 top-1/3 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.03] blur-3xl" />
-
-      <div className="relative w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
-        <div className="rounded-2xl border bg-card/80 p-8 shadow-2xl shadow-black/5 backdrop-blur-xl sm:p-10">
-          <div className="mx-auto mb-7 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
-            <Sparkles className="h-6 w-6 text-primary" />
+    <div className="flex flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-xl p-8 shadow-[0px_4px_12px_rgba(0,33,71,0.08)]">
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#002147]/10">
+            <Sparkles className="h-6 w-6 text-[#002147]" />
           </div>
 
-          <div className="space-y-1.5">
-            <h1 className="text-center text-2xl font-semibold tracking-tight sm:text-3xl">
-              Welcome to UTPreneurs
+          <div className="text-center mb-6">
+            <h1 className="font-headline text-[28px] md:text-[32px] font-bold text-[#1a1c1c]">
+              Welcome Back
             </h1>
-            <p className="text-balance px-2 text-center text-sm text-muted-foreground">
-              Connecting the UTP community to buy and sell. Fast and secure.
+            <p className="font-body text-body-md text-[#44474e] mt-1">
+              Enter your university email to receive a secure login link.
             </p>
           </div>
 
-          <form onSubmit={handleSendLink} className="mt-8 space-y-5">
+          <form onSubmit={handleSendLink} className="space-y-5">
             <div>
               <label
                 htmlFor="email"
-                className="mb-2 block text-sm font-medium"
+                className="font-label text-label-md text-[#44474e] ml-1 uppercase mb-1 block"
               >
                 UTP Email Address
               </label>
               <div className="relative">
-                <Mail
-                  className={`pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors ${
-                    focused ? "text-primary" : "text-muted-foreground"
-                  }`}
-                />
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[#74777f]">
+                  <Mail
+                    className={`h-4 w-4 transition-colors ${
+                      focused ? "text-[#002147]" : ""
+                    }`}
+                  />
+                </span>
                 <input
                   id="email"
                   type="email"
-                  placeholder="your@utp.edu.my"
+                  placeholder="student@utp.edu"
                   value={email}
                   onFocus={() => setFocused(true)}
                   onBlur={() => setFocused(false)}
@@ -125,40 +119,56 @@ export default function LoginPage() {
                     setEmail(e.target.value);
                     setError("");
                   }}
-                  className="h-12 w-full rounded-xl border bg-background pl-10 pr-3.5 text-sm outline-none transition-all placeholder:text-muted-foreground/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-[#c4c6cf] rounded-lg outline-none transition-all placeholder:text-[#c4c6cf] font-body text-body-md focus:border-[#002147] focus:ring-2 focus:ring-[rgba(0,33,71,0.12)]"
                 />
               </div>
-              <p className="mt-2.5 text-left text-xs leading-relaxed text-muted-foreground/70">
-                An authentication link will be sent to your email, use it to login
-              </p>
             </div>
 
             {error && (
-              <p className="animate-in fade-in slide-in-from-top-1 text-sm font-medium text-destructive duration-200">
-                {error}
-              </p>
+              <p className="text-sm font-medium text-[#ba1a1a]">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={sending}
-              className="group relative w-full overflow-hidden rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold tracking-wide text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
+              className="w-full py-4 px-6 rounded-lg font-bold text-lg flex items-center justify-center gap-2 bg-[#fdc34d] text-[#001b3d] transition-all hover:shadow-[0px_8px_24px_rgba(253,195,77,0.32)] hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:hover:shadow-none disabled:hover:translate-y-0"
             >
-              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
               {sending ? (
-                <span className="inline-flex items-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#001b3d]/30 border-t-[#001b3d]" />
                   Sending...
                 </span>
               ) : (
-                "Send Link"
+                <>
+                  <span>Send Authentication Link</span>
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </>
               )}
             </button>
           </form>
+
+          <div className="mt-6 text-center">
+            <p className="font-label text-label-md text-[#74777f]">
+              By signing in, you agree to our{" "}
+              <a
+                href="#"
+                className="font-bold text-[#715000] hover:underline"
+              >
+                Academic Integrity Guidelines
+              </a>
+              .
+            </p>
+          </div>
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground/50">
-          UTPreneurs &mdash; UTP Marketplace
+        <p className="mt-6 text-center font-label text-label-md text-[#74777f]">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/register"
+            className="font-bold text-[#715000] hover:underline"
+          >
+            Sign up
+          </Link>
         </p>
       </div>
     </div>
