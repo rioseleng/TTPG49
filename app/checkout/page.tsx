@@ -12,7 +12,7 @@ function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
-  const user = useAuthStore((s) => s.user);
+  const { user, loading: authLoading, refreshSession } = useAuthStore();
   const cartItems = useUIStore((s) => s.cartItems);
   const setHideNavbar = useUIStore((s) => s.setHideNavbar);
   const setHideBottomNav = useUIStore((s) => s.setHideBottomNav);
@@ -33,6 +33,10 @@ function CheckoutContent() {
     image: string;
   }[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    refreshSession();
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -80,7 +84,14 @@ function CheckoutContent() {
   }, [setHideNavbar, setHideBottomNav]);
 
   const handlePayNow = async () => {
-    if (!user || items.length === 0) return;
+    if (!user) {
+      alert("Please sign in to place an order.");
+      return;
+    }
+    if (items.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
     setPlacing(true);
 
     const resolvedLocation =
@@ -118,6 +129,12 @@ function CheckoutContent() {
       .limit(1)
       .single();
 
+    if (!order) {
+      alert("Failed to retrieve order. Please try again.");
+      setPlacing(false);
+      return;
+    }
+
     if (order) {
       const { error: itemsError } = await supabase.from("order_items").insert(
         items.map((item) => ({
@@ -136,11 +153,26 @@ function CheckoutContent() {
       }
     }
 
-    alert("Order placed successfully!");
-    router.push("/profile");
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: total, orderId: order.id }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Failed to initiate payment: " + (data.error ?? "Unknown error"));
+        setPlacing(false);
+      }
+    } catch {
+      alert("Failed to connect to payment gateway.");
+      setPlacing(false);
+    }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="flex flex-col min-h-screen bg-[#f9f9f9] items-center justify-center">
         <p className="text-[#44474e]">Loading...</p>
