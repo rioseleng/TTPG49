@@ -1,11 +1,9 @@
 "use client";
 
-import { useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Trash2, Minus, Plus, ShoppingCart, ArrowRight } from "lucide-react";
-import { useUIStore, CartItem } from "@/store/ui-store";
-import { MOCK_PRODUCTS } from "@/mock/products";
+import { useUIStore } from "@/store/ui-store";
 
 const CATEGORY_ICONS: Record<string, string> = {
   FOOD: "🍪",
@@ -14,37 +12,11 @@ const CATEGORY_ICONS: Record<string, string> = {
   OTHER: "📦",
 };
 
-const INITIAL_CART_ITEMS: CartItem[] = [
-  {
-    productId: "1",
-    title: (MOCK_PRODUCTS.find((p) => p.id === "1")?.title ?? "Cookies"),
-    price: MOCK_PRODUCTS.find((p) => p.id === "1")?.price ?? 0,
-    category: "FOOD",
-    quantity: 2,
-    image: "🍪",
-  },
-  {
-    productId: "2",
-    title: (MOCK_PRODUCTS.find((p) => p.id === "2")?.title ?? "Hoodie"),
-    price: MOCK_PRODUCTS.find((p) => p.id === "2")?.price ?? 0,
-    category: "CLOTHING",
-    quantity: 1,
-    image: "👕",
-  },
-];
-
 export default function CartPage() {
   const router = useRouter();
   const cartItems = useUIStore((s) => s.cartItems);
-  const addCartItem = useUIStore((s) => s.addCartItem);
   const removeCartItem = useUIStore((s) => s.removeCartItem);
   const updateCartItemQuantity = useUIStore((s) => s.updateCartItemQuantity);
-  const seeded = useRef(false);
-
-  if (!seeded.current && cartItems.length === 0) {
-    seeded.current = true;
-    INITIAL_CART_ITEMS.forEach((item) => addCartItem(item));
-  }
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -74,7 +46,9 @@ export default function CartPage() {
               className="bg-white rounded-xl p-4 flex gap-4 shadow-[0px_4px_12px_rgba(0,33,71,0.08)] transition-all hover:opacity-95"
             >
               <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-[#eeeeee] flex items-center justify-center text-3xl">
-                {CATEGORY_ICONS[item.category] || "📦"}
+                {item.image ? (
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                ) : CATEGORY_ICONS[item.category] || "📦"}
               </div>
               <div className="flex-grow flex flex-col justify-between">
                 <div>

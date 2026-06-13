@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { MOCK_PRODUCTS } from "@/mock/products";
+import { createClient } from "@/lib/supabase";
+import { toProductListing } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
+import type { ProductListing } from "@/types";
 import {
   Search,
   Heart,
@@ -29,30 +31,86 @@ const CATEGORY_ICONS: Record<string, string> = {
 };
 
 export default function HomePage() {
-  const { searchQuery, setSearchQuery, addToCart } = useUIStore();
+  const { searchQuery, setSearchQuery, addCartItem } = useUIStore();
   const [selected, setSelected] = useState<string | null>(null);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
+  const [products, setProducts] = useState<ProductListing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    const fetchProducts = () => {
+      supabase
+        .from("product_listings")
+        .select("*")
+        .eq("is_available", true)
+        .order("created_at", { ascending: false })
+        .then(({ data, error }) => {
+          if (error) {
+            setError(error.message);
+          } else {
+            setProducts((data ?? []).map(toProductListing));
+          }
+          setLoading(false);
+        });
+    };
+
+    fetchProducts();
+
+    const channel = supabase
+      .channel("homepage")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "product_listings" },
+        () => {
+          supabase
+            .from("product_listings")
+            .select("*")
+            .eq("is_available", true)
+            .order("created_at", { ascending: false })
+            .then(({ data }) => {
+              if (data) setProducts(data.map(toProductListing));
+            });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const filteredProducts = useMemo(() => {
-    return (MOCK_PRODUCTS?.filter((product) => {
-      const matchCat =
-        selected === null || product.category === selected;
+    return products.filter((product) => {
+      const matchCat = selected === null || product.category === selected;
       const q = searchQuery.toLowerCase();
       const matchSearch =
         !q ||
         product.title.toLowerCase().includes(q) ||
         product.description.toLowerCase().includes(q);
       return matchCat && matchSearch;
-    })) || [];
-  }, [searchQuery, selected]);
+    });
+  }, [searchQuery, selected, products]);
 
   const handleQuickAdd = useCallback(
     (id: string, e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      addToCart();
+      const product = products.find((p) => p.id === id);
+      if (product) {
+        addCartItem({
+          productId: product.id,
+          title: product.title,
+          price: product.price,
+          category: product.category,
+          quantity: 1,
+          image: product.images?.[0] ?? "",
+        });
+      }
     },
-    [addToCart],
+    [products, addCartItem],
   );
 
   const toggleLike = useCallback(
@@ -68,6 +126,24 @@ export default function HomePage() {
     },
     [],
   );
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 text-center">
+        <p className="font-bold text-base text-slate-900">Loading products...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 text-center px-4">
+        <p className="text-6xl mb-4">⚠️</p>
+        <p className="font-bold text-base text-slate-900 mb-1">Failed to load products</p>
+        <p className="text-sm text-slate-400">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col pb-4">
@@ -155,8 +231,10 @@ export default function HomePage() {
                   href={`/product/${product.id}`}
                   className="bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col"
                 >
-                  <div className="relative aspect-square w-full bg-slate-100 flex items-center justify-center text-4xl">
-                    {icon}
+                  <div className="relative aspect-square w-full bg-slate-100 flex items-center justify-center text-4xl overflow-hidden">
+                    {product.images?.[0] ? (
+                      <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+                    ) : icon}
                     <button
                       type="button"
                       onClick={(e) => toggleLike(product.id, e)}

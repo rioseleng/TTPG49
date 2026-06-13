@@ -1,8 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { MOCK_PRODUCTS } from "@/mock/products";
+import { createClient } from "@/lib/supabase";
+import { toProductListing } from "@/lib/utils";
+import type { ProductListing } from "@/types";
+import { useUIStore } from "@/store/ui-store";
 import { ArrowLeft, Share2, Star, ShoppingCart, CreditCard } from "lucide-react";
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -15,7 +19,48 @@ const CATEGORY_ICONS: Record<string, string> = {
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const product = MOCK_PRODUCTS.find((p) => p.id === params.id);
+  const addCartItem = useUIStore((s) => s.addCartItem);
+  const [product, setProduct] = useState<ProductListing | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase
+      .from("product_listings")
+      .select("*")
+      .eq("id", params.id)
+      .single()
+      .then(({ data, error }) => {
+        if (!error && data) {
+          setProduct(toProductListing(data));
+        }
+        setLoading(false);
+      });
+
+    const channel = supabase
+      .channel("product-detail")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "product_listings", filter: `id=eq.${params.id}` },
+        (payload) => {
+          if (payload.new) setProduct(toProductListing(payload.new));
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-4xl items-center justify-center px-4 text-center">
+        <p className="text-[#44474e]">Loading...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -54,7 +99,9 @@ export default function ProductDetailPage() {
       {/* Product Image */}
       <div className="px-4 mt-2">
         <div className="relative w-full aspect-square bg-[#f3f3f4] rounded-xl overflow-hidden shadow-sm flex items-center justify-center text-6xl">
-          {CATEGORY_ICONS[product.category] || "📦"}
+          {product.images?.[0] ? (
+            <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+          ) : CATEGORY_ICONS[product.category] || "📦"}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
             <div className="w-2 h-2 rounded-full bg-white shadow-sm" />
             <div className="w-2 h-2 rounded-full bg-white/40 shadow-sm" />
@@ -74,19 +121,11 @@ export default function ProductDetailPage() {
         <div className="p-4 bg-white rounded-xl shadow-[0px_4px_12px_rgba(0,33,71,0.08)] flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-[#002147] flex items-center justify-center text-white font-bold text-lg">
-              {product.sellerId === "seller-1"
-                ? "A"
-                : product.sellerId === "seller-2"
-                  ? "B"
-                  : "C"}
+              S
             </div>
             <div>
               <p className="font-headline text-[18px] font-semibold leading-6 text-[#000a1e]">
-                {product.sellerId === "seller-1"
-                  ? "Akmal S."
-                  : product.sellerId === "seller-2"
-                    ? "Bella R."
-                    : "Chong W."}
+                Seller
               </p>
               <div className="flex items-center gap-1">
                 <Star className="text-[#fdc34d] h-4 w-4 fill-[#fdc34d]" />
@@ -115,6 +154,11 @@ export default function ProductDetailPage() {
             {product.isAvailable ? "In Stock" : "Sold"}
           </span>
         </div>
+        <div className="flex items-center gap-2 text-sm text-[#44474e]">
+          <span className="font-body">Quantity:</span>
+          <span className="font-bold text-[#002147]">{product.quantity}</span>
+          <span className="font-body">available</span>
+        </div>
 
         {/* Description */}
         <div className="flex flex-col gap-2">
@@ -140,7 +184,19 @@ export default function ProductDetailPage() {
       {/* Bottom Action Bar */}
       <div className="mt-8 px-4 pb-4">
         <div className="flex items-center gap-3 bg-white rounded-t-xl p-4">
-          <button className="flex-1 h-12 border-2 border-[#000a1e] text-[#000a1e] rounded-xl font-bold text-[16px] leading-6 hover:bg-[#002147] hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2">
+          <button
+            onClick={() => {
+              addCartItem({
+                productId: product.id,
+                title: product.title,
+                price: product.price,
+                category: product.category,
+                quantity: 1,
+                image: product.images?.[0] ?? "",
+              });
+            }}
+            className="flex-1 h-12 border-2 border-[#000a1e] text-[#000a1e] rounded-xl font-bold text-[16px] leading-6 hover:bg-[#002147] hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
+          >
             <ShoppingCart className="w-5 h-5" />
             <span>Add to Cart</span>
           </button>

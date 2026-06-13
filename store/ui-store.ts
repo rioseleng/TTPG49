@@ -49,21 +49,23 @@ export const useUIStore = create<UIState>((set) => ({
       const existing = state.cartItems.find(
         (i) => i.productId === item.productId,
       );
+      let items: CartItem[];
       if (existing) {
-        return {
-          cartItems: state.cartItems.map((i) =>
-            i.productId === item.productId
-              ? { ...i, quantity: i.quantity + item.quantity }
-              : i,
-          ),
-        };
+        items = state.cartItems.map((i) =>
+          i.productId === item.productId
+            ? { ...i, quantity: i.quantity + item.quantity }
+            : i,
+        );
+      } else {
+        items = [...state.cartItems, item];
       }
-      return { cartItems: [...state.cartItems, item] };
+      return { cartItems: items, cartItemCount: items.length };
     }),
   removeCartItem: (productId) =>
-    set((state) => ({
-      cartItems: state.cartItems.filter((i) => i.productId !== productId),
-    })),
+    set((state) => {
+      const items = state.cartItems.filter((i) => i.productId !== productId);
+      return { cartItems: items, cartItemCount: items.length };
+    }),
   updateCartItemQuantity: (productId, delta) =>
     set((state) => ({
       cartItems: state.cartItems

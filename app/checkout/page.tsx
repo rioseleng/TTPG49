@@ -1,15 +1,18 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, MapPin, FileText } from "lucide-react";
+import { createClient } from "@/lib/supabase";
+import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
-import { MOCK_PRODUCTS } from "@/mock/products";
 
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = createClient();
+  const user = useAuthStore((s) => s.user);
   const cartItems = useUIStore((s) => s.cartItems);
   const setHideNavbar = useUIStore((s) => s.setHideNavbar);
   const setHideBottomNav = useUIStore((s) => s.setHideBottomNav);
@@ -17,26 +20,46 @@ function CheckoutContent() {
   const [deliveryLocation, setDeliveryLocation] = useState("");
   const [customLocation, setCustomLocation] = useState("");
   const [deliveryNote, setDeliveryNote] = useState("");
+  const [placing, setPlacing] = useState(false);
 
   const productId = searchParams.get("productId");
 
-  const items = useMemo(() => {
-    if (productId) {
-      const product = MOCK_PRODUCTS.find((p) => p.id === productId);
-      if (product) {
-        return [
-          {
-            productId: product.id,
-            title: product.title,
-            price: product.price,
-            category: product.category,
-            quantity: 1,
-            image: "",
-          },
-        ];
+  const [items, setItems] = useState<{
+    productId: string;
+    title: string;
+    price: number;
+    category: string;
+    quantity: number;
+    image: string;
+  }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      if (productId) {
+        const { data } = await supabase
+          .from("product_listings")
+          .select("*")
+          .eq("id", productId)
+          .single();
+        if (data) {
+          setItems([
+            {
+              productId: data.id,
+              title: data.title,
+              price: data.price,
+              category: data.category,
+              quantity: 1,
+              image: "",
+            },
+          ]);
+        }
+      } else {
+        setItems(cartItems);
       }
+      setLoading(false);
     }
-    return cartItems;
+    load();
   }, [productId, cartItems]);
 
   const subtotal = items.reduce(
@@ -55,6 +78,75 @@ function CheckoutContent() {
       setHideBottomNav(false);
     };
   }, [setHideNavbar, setHideBottomNav]);
+
+  const handlePayNow = async () => {
+    if (!user || items.length === 0) return;
+    setPlacing(true);
+
+    const resolvedLocation =
+      deliveryLocation === "Others" ? customLocation : deliveryLocation;
+
+    const { data: firstProduct } = await supabase
+      .from("product_listings")
+      .select("seller_id")
+      .eq("id", items[0].productId)
+      .single();
+
+    const { error: orderError } = await supabase.from("orders").insert({
+      buyer_id: user.id,
+      seller_id: firstProduct?.seller_id ?? user.id,
+      delivery_location: resolvedLocation,
+      delivery_note: deliveryNote,
+      subtotal,
+      discount,
+      tax,
+      total_amount: total,
+      status: "PENDING",
+    });
+
+    if (orderError) {
+      alert("Failed to place order. Please try again.");
+      setPlacing(false);
+      return;
+    }
+
+    const { data: order } = await supabase
+      .from("orders")
+      .select("id")
+      .eq("buyer_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (order) {
+      const { error: itemsError } = await supabase.from("order_items").insert(
+        items.map((item) => ({
+          order_id: order.id,
+          product_id: item.productId,
+          product_title: item.title,
+          product_category: item.category,
+          quantity: item.quantity,
+          unit_price: item.price,
+        })),
+      );
+      if (itemsError) {
+        alert("Order created but failed to save items.");
+        setPlacing(false);
+        return;
+      }
+    }
+
+    alert("Order placed successfully!");
+    router.push("/profile");
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#f9f9f9] items-center justify-center">
+        <p className="text-[#44474e]">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f9f9f9]">
@@ -222,8 +314,12 @@ function CheckoutContent() {
         </section>
 
         <div className="pt-4">
-          <button className="w-full bg-[#fdc34d] text-[#271900] font-bold py-3 px-6 rounded-lg shadow-md hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1">
-            Pay Now
+          <button
+            onClick={handlePayNow}
+            disabled={placing || items.length === 0}
+            className="w-full bg-[#fdc34d] text-[#271900] font-bold py-3 px-6 rounded-lg shadow-md hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 disabled:opacity-50"
+          >
+            {placing ? "Processing..." : "Pay Now"}
           </button>
         </div>
       </main>

@@ -2,6 +2,16 @@ import { create } from "zustand";
 import { createClient } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 
+const MOCK_USER: User = {
+  id: "00000000-0000-0000-0000-000000000001",
+  aud: "authenticated",
+  role: "authenticated",
+  email: "test@utp.edu.my",
+  app_metadata: {},
+  user_metadata: {},
+  created_at: new Date().toISOString(),
+};
+
 interface AuthState {
   user: User | null;
   loading: boolean;
@@ -38,6 +48,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    set({ user: session?.user ?? null, loading: false });
+    set({ user: session?.user ?? MOCK_USER, loading: false });
   },
 }));

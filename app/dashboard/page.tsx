@@ -1,10 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Plus, TrendingUp, Edit3 } from "lucide-react";
-import { MOCK_PRODUCTS } from "@/mock/products";
+import { createClient } from "@/lib/supabase";
+import { toProductListing } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
+import type { ProductListing } from "@/types";
 
 const CATEGORY_ICONS: Record<string, string> = {
   FOOD: "🍪",
@@ -15,9 +18,45 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
-  const sellerId = user?.id ?? "seller-1";
-  const myProducts = MOCK_PRODUCTS.filter((p) => p.sellerId === sellerId);
+  const { user, loading, refreshSession } = useAuthStore();
+  const [myProducts, setMyProducts] = useState<ProductListing[]>([]);
+
+  useEffect(() => {
+    refreshSession();
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const supabase = createClient();
+
+    const fetchProducts = () => {
+      supabase
+        .from("product_listings")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .then(({ data }) => {
+          setMyProducts((data ?? []).map(toProductListing));
+        });
+    };
+
+    fetchProducts();
+
+    const channel = supabase
+      .channel("dashboard")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "product_listings" },
+        () => {
+          fetchProducts();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [loading, user]);
 
   const totalSales = myProducts
     .filter((p) => !p.isAvailable)
@@ -111,7 +150,9 @@ export default function DashboardPage() {
               className="bg-white p-4 rounded-xl shadow-card border border-[#c4c6cf] flex items-center gap-4"
             >
               <div className="w-20 h-20 rounded-lg bg-[#e2e2e2] flex-shrink-0 overflow-hidden border border-[#c4c6cf] flex items-center justify-center text-2xl">
-                {CATEGORY_ICONS[product.category] || "📦"}
+                {product.images?.[0] ? (
+                  <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+                ) : CATEGORY_ICONS[product.category] || "📦"}
               </div>
               <div className="flex-grow min-w-0">
                 <div className="flex justify-between items-start mb-1">
@@ -133,7 +174,7 @@ export default function DashboardPage() {
                       <p className="text-on-surface-variant text-[10px] uppercase font-bold tracking-wider">
                         Qty
                       </p>
-                      <p className="font-semibold text-[#1a1c1c]">1</p>
+                      <p className="font-semibold text-[#1a1c1c]">{product.quantity ?? 1}</p>
                     </div>
                     <div>
                       <p className="text-on-surface-variant text-[10px] uppercase font-bold tracking-wider">

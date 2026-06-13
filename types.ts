@@ -21,6 +21,7 @@ export interface ProductListing {
   price: number;
   category: "FOOD" | "CLOTHING" | "ACCESSORIES" | "OTHER";
   images: string[];
+  quantity: number;
   createdAt: Date;
   isAvailable: boolean;
 }
