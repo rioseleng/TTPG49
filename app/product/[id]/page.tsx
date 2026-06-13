@@ -193,6 +193,7 @@ export default function ProductDetailPage() {
                 category: product.category,
                 quantity: 1,
                 image: product.images?.[0] ?? "",
+                availableStock: product.quantity,
               });
             }}
             className="flex-1 h-12 border-2 border-[#000a1e] text-[#000a1e] rounded-xl font-bold text-[16px] leading-6 hover:bg-[#002147] hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"

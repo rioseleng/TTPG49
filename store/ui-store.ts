@@ -7,6 +7,7 @@ export interface CartItem {
   category: string;
   quantity: number;
   image: string;
+  availableStock: number;
 }
 
 interface UIState {
@@ -51,12 +52,21 @@ export const useUIStore = create<UIState>((set) => ({
       );
       let items: CartItem[];
       if (existing) {
+        const newQty = existing.quantity + item.quantity;
+        if (newQty > existing.availableStock) {
+          alert(`Only ${existing.availableStock} items available. You already have ${existing.quantity} in your cart.`);
+          return state;
+        }
         items = state.cartItems.map((i) =>
           i.productId === item.productId
-            ? { ...i, quantity: i.quantity + item.quantity }
+            ? { ...i, quantity: newQty }
             : i,
         );
       } else {
+        if (item.quantity > item.availableStock) {
+          alert(`Only ${item.availableStock} items available.`);
+          return state;
+        }
         items = [...state.cartItems, item];
       }
       return { cartItems: items, cartItemCount: items.length };
@@ -67,14 +77,22 @@ export const useUIStore = create<UIState>((set) => ({
       return { cartItems: items, cartItemCount: items.length };
     }),
   updateCartItemQuantity: (productId, delta) =>
-    set((state) => ({
-      cartItems: state.cartItems
-        .map((i) =>
+    set((state) => {
+      const item = state.cartItems.find((i) => i.productId === productId);
+      if (!item) return state;
+      const newQty = item.quantity + delta;
+      if (newQty > item.availableStock) {
+        alert(`Only ${item.availableStock} items available. You already have ${item.quantity} in your cart.`);
+        return state;
+      }
+      return {
+        cartItems: state.cartItems.map((i) =>
           i.productId === productId
-            ? { ...i, quantity: Math.max(1, i.quantity + delta) }
+            ? { ...i, quantity: Math.max(1, newQty) }
             : i,
         ),
-    })),
+      };
+    }),
   setHideNavbar: (hide) => set({ hideNavbar: hide }),
   setHideBottomNav: (hide) => set({ hideBottomNav: hide }),
 }));

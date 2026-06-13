@@ -107,6 +107,7 @@ export default function HomePage() {
           category: product.category,
           quantity: 1,
           image: product.images?.[0] ?? "",
+          availableStock: product.quantity,
         });
       }
     },

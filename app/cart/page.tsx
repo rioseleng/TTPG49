@@ -71,26 +71,32 @@ export default function CartPage() {
                   <span className="font-label text-label-md text-[#44474e] uppercase tracking-wider">
                     Quantity
                   </span>
-                  <div className="flex items-center bg-[#eeeeee] rounded-full px-1 py-1">
-                    <button
-                      onClick={() =>
-                        updateCartItemQuantity(item.productId, -1)
-                      }
-                      className="w-8 h-8 flex items-center justify-center text-[#002147] active:scale-90 transition-transform"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="w-8 text-center font-bold text-[#002147]">
-                      {item.quantity}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-[#44474e]">
+                      {item.quantity}/{item.availableStock}
                     </span>
-                    <button
-                      onClick={() =>
-                        updateCartItemQuantity(item.productId, 1)
-                      }
-                      className="w-8 h-8 flex items-center justify-center text-[#002147] active:scale-90 transition-transform"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center bg-[#eeeeee] rounded-full px-1 py-1">
+                      <button
+                        onClick={() =>
+                          updateCartItemQuantity(item.productId, -1)
+                        }
+                        className="w-8 h-8 flex items-center justify-center text-[#002147] active:scale-90 transition-transform"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-8 text-center font-bold text-[#002147]">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() =>
+                          updateCartItemQuantity(item.productId, 1)
+                        }
+                        disabled={item.quantity >= item.availableStock}
+                        className="w-8 h-8 flex items-center justify-center text-[#002147] active:scale-90 transition-transform disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
