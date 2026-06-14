@@ -5,6 +5,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import { toProductListing } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
+import { useAuthStore } from "@/store/auth-store";
+import { useWishlistStore } from "@/store/wishlist-store";
 import type { ProductListing } from "@/types";
 import {
   Search,
@@ -32,8 +34,9 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 export default function HomePage() {
   const { searchQuery, setSearchQuery, addCartItem } = useUIStore();
+  const { user, refreshSession } = useAuthStore();
+  const { wishlistIds, refresh, toggle } = useWishlistStore();
   const [selected, setSelected] = useState<string | null>(null);
-  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [products, setProducts] = useState<ProductListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +85,14 @@ export default function HomePage() {
     };
   }, []);
 
+  useEffect(() => {
+    refreshSession();
+  }, []);
+
+  useEffect(() => {
+    if (user) refresh(user.id);
+  }, [user?.id]);
+
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchCat = selected === null || product.category === selected;
@@ -118,14 +129,10 @@ export default function HomePage() {
     (id: string, e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      setLikedIds((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-        return next;
-      });
+      if (!user) return;
+      toggle(user.id, id);
     },
-    [],
+    [user, toggle],
   );
 
   if (loading) {
@@ -225,7 +232,7 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-4">
             {filteredProducts.map((product) => {
               const icon = CATEGORY_ICONS[product.category] || "📦";
-              const isLiked = likedIds.has(product.id);
+              const isLiked = wishlistIds.has(product.id);
               return (
                 <Link
                   key={product.id}

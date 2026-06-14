@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase";
 import { Store, Check } from "lucide-react";
 import { useUIStore } from "@/store/ui-store";
 
@@ -12,6 +13,26 @@ function SuccessContent() {
   const status = searchParams.get("status");
   const setHideNavbar = useUIStore((s) => s.setHideNavbar);
   const setHideBottomNav = useUIStore((s) => s.setHideBottomNav);
+
+  const [updateError, setUpdateError] = useState("");
+
+  useEffect(() => {
+    if (orderId) {
+      const supabase = createClient();
+      supabase
+        .from("orders")
+        .update({ status: "CONFIRMED" })
+        .eq("id", orderId)
+        .then(({ error }) => {
+          if (error) {
+            console.error("Order status update error:", error.message);
+            setUpdateError(error.message);
+          } else {
+            console.log("Order status updated to CONFIRMED:", orderId);
+          }
+        });
+    }
+  }, [orderId]);
 
   useEffect(() => {
     setHideNavbar(true);
@@ -36,6 +57,14 @@ function SuccessContent() {
       </header>
 
       <div className="flex flex-1 flex-col items-center justify-center px-6 pt-14 text-center">
+        {updateError && (
+          <div className="mb-4 w-full rounded-xl bg-[#ffdad6] p-3 text-center">
+            <p className="font-body text-body-md text-[#93000a]">
+              Status update failed: {updateError}
+            </p>
+          </div>
+        )}
+
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-500 shadow-[0px_4px_12px_rgba(0,33,71,0.08)]">
           <Check className="h-10 w-10 text-white" strokeWidth={3} />
         </div>
@@ -45,6 +74,9 @@ function SuccessContent() {
         </h1>
         <p className="mb-8 font-body text-body-md text-[#44474e]">
           Your order has been confirmed and the seller has been notified.
+        </p>
+        <p className="mb-4 font-body text-body-md text-[#44474e]">
+          View it under <strong>Profile → Order History → Paid</strong> tab.
         </p>
 
         <div className="w-full rounded-xl bg-white p-4 shadow-[0px_4px_12px_rgba(0,33,71,0.08)]">

@@ -23,6 +23,8 @@ function CheckoutContent() {
   const [placing, setPlacing] = useState(false);
 
   const productId = searchParams.get("productId");
+  const resumeOrderId = searchParams.get("orderId");
+  const [existingOrderId, setExistingOrderId] = useState<string | null>(null);
 
   const [items, setItems] = useState<{
     productId: string;
@@ -40,7 +42,36 @@ function CheckoutContent() {
 
   useEffect(() => {
     async function load() {
-      if (productId) {
+      if (resumeOrderId) {
+        const { data: order } = await supabase
+          .from("orders")
+          .select("*, order_items(*)")
+          .eq("id", resumeOrderId)
+          .single();
+        if (order) {
+          setExistingOrderId(order.id);
+          setDeliveryLocation(order.delivery_location ?? "");
+          setDeliveryNote(order.delivery_note ?? "");
+          setItems(
+            (order.order_items ?? []).map(
+              (item: {
+                product_id: string;
+                product_title: string;
+                product_category: string;
+                quantity: number;
+                unit_price: number;
+              }) => ({
+                productId: item.product_id,
+                title: item.product_title,
+                price: item.unit_price,
+                category: item.product_category,
+                quantity: item.quantity,
+                image: "",
+              }),
+            ),
+          );
+        }
+      } else if (productId) {
         const { data } = await supabase
           .from("product_listings")
           .select("*")
@@ -64,7 +95,7 @@ function CheckoutContent() {
       setLoading(false);
     }
     load();
-  }, [productId, cartItems]);
+  }, [resumeOrderId, productId, cartItems]);
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -94,48 +125,52 @@ function CheckoutContent() {
     }
     setPlacing(true);
 
-    const resolvedLocation =
-      deliveryLocation === "Others" ? customLocation : deliveryLocation;
+    let orderId = existingOrderId;
 
-    const { data: firstProduct } = await supabase
-      .from("product_listings")
-      .select("seller_id")
-      .eq("id", items[0].productId)
-      .single();
+    if (!orderId) {
+      const resolvedLocation =
+        deliveryLocation === "Others" ? customLocation : deliveryLocation;
 
-    const { error: orderError } = await supabase.from("orders").insert({
-      buyer_id: user.id,
-      seller_id: firstProduct?.seller_id ?? user.id,
-      delivery_location: resolvedLocation,
-      delivery_note: deliveryNote,
-      subtotal,
-      discount,
-      tax,
-      total_amount: total,
-      status: "PENDING",
-    });
+      const { data: firstProduct } = await supabase
+        .from("product_listings")
+        .select("seller_id")
+        .eq("id", items[0].productId)
+        .single();
 
-    if (orderError) {
-      alert("Failed to place order. Please try again.");
-      setPlacing(false);
-      return;
-    }
+      const { error: orderError } = await supabase.from("orders").insert({
+        buyer_id: user.id,
+        seller_id: firstProduct?.seller_id ?? user.id,
+        delivery_location: resolvedLocation,
+        delivery_note: deliveryNote,
+        subtotal,
+        discount,
+        tax,
+        total_amount: total,
+        status: "PENDING",
+      });
 
-    const { data: order } = await supabase
-      .from("orders")
-      .select("id")
-      .eq("buyer_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
+      if (orderError) {
+        alert("Failed to place order. Please try again.");
+        setPlacing(false);
+        return;
+      }
 
-    if (!order) {
-      alert("Failed to retrieve order. Please try again.");
-      setPlacing(false);
-      return;
-    }
+      const { data: order } = await supabase
+        .from("orders")
+        .select("id")
+        .eq("buyer_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
 
-    if (order) {
+      if (!order) {
+        alert("Failed to retrieve order. Please try again.");
+        setPlacing(false);
+        return;
+      }
+
+      orderId = order.id;
+
       const { error: itemsError } = await supabase.from("order_items").insert(
         items.map((item) => ({
           order_id: order.id,
@@ -157,7 +192,7 @@ function CheckoutContent() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: total, orderId: order.id }),
+        body: JSON.stringify({ amount: total, orderId }),
       });
       const data = await res.json();
       if (data.url) {
@@ -185,7 +220,7 @@ function CheckoutContent() {
       <header className="bg-white sticky top-0 w-full z-50 shadow-[0px_4px_12px_rgba(0,33,71,0.08)]">
         <div className="flex justify-between items-center px-4 py-2 w-full mx-auto">
           <button
-            onClick={() => router.push("/cart")}
+            onClick={() => router.push(resumeOrderId ? "/orders" : "/cart")}
             className="text-[#000a1e] active:scale-95 transition-transform hover:opacity-80"
           >
             <ArrowLeft className="w-6 h-6" />
@@ -198,61 +233,63 @@ function CheckoutContent() {
       </header>
 
       <main className="px-4 pb-8 pt-6 space-y-8">
-        <section>
-          <h2 className="font-headline text-headline-sm text-[#000a1e] mb-4">
-            Delivery Information
-          </h2>
-          <div className="bg-white p-4 rounded-xl shadow-[0px_4px_12px_rgba(0,33,71,0.08)] border border-[#e2e2e2] space-y-3">
-            <div className="flex items-start gap-4">
-              <MapPin className="w-6 h-6 text-[#fdc34d] mt-0.5 flex-shrink-0" />
-              <div className="flex-1 space-y-3">
-                <select
-                  value={deliveryLocation}
-                  onChange={(e) => setDeliveryLocation(e.target.value)}
-                  className="w-full font-body text-body-lg font-semibold text-[#1a1c1c] bg-transparent border border-[#c4c6cf] rounded-lg px-3 py-2 focus:outline-none focus:border-[#fdc34d] focus:ring-1 focus:ring-[#fdc34d] appearance-none"
-                >
-                  <option value="" disabled>
-                    Select delivery location
-                  </option>
-                  {[1, 2, 3, 4, 5, 6, 7].map((n) => (
-                    <option key={n} value={`Village ${n}`}>
-                      Village {n}
+        {!resumeOrderId && (
+          <section>
+            <h2 className="font-headline text-headline-sm text-[#000a1e] mb-4">
+              Delivery Information
+            </h2>
+            <div className="bg-white p-4 rounded-xl shadow-[0px_4px_12px_rgba(0,33,71,0.08)] border border-[#e2e2e2] space-y-3">
+              <div className="flex items-start gap-4">
+                <MapPin className="w-6 h-6 text-[#fdc34d] mt-0.5 flex-shrink-0" />
+                <div className="flex-1 space-y-3">
+                  <select
+                    value={deliveryLocation}
+                    onChange={(e) => setDeliveryLocation(e.target.value)}
+                    className="w-full font-body text-body-lg font-semibold text-[#1a1c1c] bg-transparent border border-[#c4c6cf] rounded-lg px-3 py-2 focus:outline-none focus:border-[#fdc34d] focus:ring-1 focus:ring-[#fdc34d] appearance-none"
+                  >
+                    <option value="" disabled>
+                      Select delivery location
                     </option>
-                  ))}
-                  <option value="Others">Others</option>
-                </select>
-                {deliveryLocation === "Others" && (
-                  <input
-                    type="text"
-                    value={customLocation}
-                    onChange={(e) => setCustomLocation(e.target.value)}
-                    placeholder="Enter your delivery location"
-                    className="w-full font-body text-body-md text-[#1a1c1c] bg-transparent border border-[#c4c6cf] rounded-lg px-3 py-2 focus:outline-none focus:border-[#fdc34d] focus:ring-1 focus:ring-[#fdc34d] placeholder:text-[#44474e]"
+                    {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+                      <option key={n} value={`Village ${n}`}>
+                        Village {n}
+                      </option>
+                    ))}
+                    <option value="Others">Others</option>
+                  </select>
+                  {deliveryLocation === "Others" && (
+                    <input
+                      type="text"
+                      value={customLocation}
+                      onChange={(e) => setCustomLocation(e.target.value)}
+                      placeholder="Enter your delivery location"
+                      className="w-full font-body text-body-md text-[#1a1c1c] bg-transparent border border-[#c4c6cf] rounded-lg px-3 py-2 focus:outline-none focus:border-[#fdc34d] focus:ring-1 focus:ring-[#fdc34d] placeholder:text-[#44474e]"
+                    />
+                  )}
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <FileText className="w-6 h-6 text-[#fdc34d] mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <textarea
+                    value={deliveryNote}
+                    onChange={(e) => setDeliveryNote(e.target.value)}
+                    placeholder="Add a delivery note for the seller (optional)"
+                    rows={2}
+                    className="w-full font-body text-body-md text-[#1a1c1c] bg-transparent border border-[#c4c6cf] rounded-lg px-3 py-2 focus:outline-none focus:border-[#fdc34d] focus:ring-1 focus:ring-[#fdc34d] placeholder:text-[#44474e] resize-none"
                   />
-                )}
+                </div>
               </div>
+              {(deliveryLocation && (deliveryLocation !== "Others" || customLocation)) && (
+                <div className="flex items-center justify-between pt-2 border-t border-[#e2e2e2]">
+                  <p className="font-body text-body-sm text-[#5d4200]">
+                    {deliveryLocation === "Others" ? customLocation : deliveryLocation}
+                  </p>
+                </div>
+              )}
             </div>
-            <div className="flex items-start gap-4">
-              <FileText className="w-6 h-6 text-[#fdc34d] mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <textarea
-                  value={deliveryNote}
-                  onChange={(e) => setDeliveryNote(e.target.value)}
-                  placeholder="Add a delivery note for the seller (optional)"
-                  rows={2}
-                  className="w-full font-body text-body-md text-[#1a1c1c] bg-transparent border border-[#c4c6cf] rounded-lg px-3 py-2 focus:outline-none focus:border-[#fdc34d] focus:ring-1 focus:ring-[#fdc34d] placeholder:text-[#44474e] resize-none"
-                />
-              </div>
-            </div>
-            {(deliveryLocation && (deliveryLocation !== "Others" || customLocation)) && (
-              <div className="flex items-center justify-between pt-2 border-t border-[#e2e2e2]">
-                <p className="font-body text-body-sm text-[#5d4200]">
-                  {deliveryLocation === "Others" ? customLocation : deliveryLocation}
-                </p>
-              </div>
-            )}
-          </div>
-        </section>
+          </section>
+        )}
 
         <section>
           <h2 className="font-headline text-headline-sm text-[#000a1e] mb-4">
@@ -351,7 +388,7 @@ function CheckoutContent() {
             disabled={placing || items.length === 0}
             className="w-full bg-[#fdc34d] text-[#271900] font-bold py-3 px-6 rounded-lg shadow-md hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 disabled:opacity-50"
           >
-            {placing ? "Processing..." : "Pay Now"}
+            {placing ? "Processing..." : resumeOrderId ? "Continue Payment" : "Pay Now"}
           </button>
         </div>
       </main>

@@ -7,7 +7,9 @@ import { createClient } from "@/lib/supabase";
 import { toProductListing } from "@/lib/utils";
 import type { ProductListing } from "@/types";
 import { useUIStore } from "@/store/ui-store";
-import { ArrowLeft, Share2, Star, ShoppingCart, CreditCard } from "lucide-react";
+import { useAuthStore } from "@/store/auth-store";
+import { useWishlistStore } from "@/store/wishlist-store";
+import { ArrowLeft, Heart, Share2, Star, ShoppingCart, CreditCard } from "lucide-react";
 
 const CATEGORY_ICONS: Record<string, string> = {
   FOOD: "🍪",
@@ -20,8 +22,25 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const addCartItem = useUIStore((s) => s.addCartItem);
+  const { user, refreshSession } = useAuthStore();
+  const { wishlistIds, refresh, toggle } = useWishlistStore();
   const [product, setProduct] = useState<ProductListing | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    refreshSession();
+  }, []);
+
+  useEffect(() => {
+    if (user) refresh(user.id);
+  }, [user?.id]);
+
+  const isLiked = product ? wishlistIds.has(product.id) : false;
+
+  const handleToggleLike = () => {
+    if (!user || !product) return;
+    toggle(user.id, product.id);
+  };
 
   useEffect(() => {
     const supabase = createClient();
@@ -90,10 +109,21 @@ export default function ProductDetailPage() {
         >
           <ArrowLeft className="w-6 h-6 text-[#000a1e]" />
         </button>
-        <div />
-        <button className="active:scale-95 transition-transform flex items-center">
-          <Share2 className="w-6 h-6 text-[#000a1e]" />
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleToggleLike}
+            className="active:scale-95 transition-transform flex items-center"
+          >
+            <Heart
+              className={`w-6 h-6 ${
+                isLiked ? "fill-red-500 text-red-500" : "text-[#000a1e]"
+              }`}
+            />
+          </button>
+          <button className="active:scale-95 transition-transform flex items-center">
+            <Share2 className="w-6 h-6 text-[#000a1e]" />
+          </button>
+        </div>
       </div>
 
       {/* Product Image */}

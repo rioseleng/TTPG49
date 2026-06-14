@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth-store";
-import { Mail, ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
+import { createClient } from "@/lib/supabase";
+import { Mail, ArrowRight, ArrowLeft, Sparkles, ChevronDown, Lock } from "lucide-react";
 
 const ALLOWED_DOMAINS = ["@utp.edu.my", "@student.utp.edu.my"];
 
@@ -19,6 +20,41 @@ export default function LoginPage() {
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [focused, setFocused] = useState(false);
+
+  // Test login state
+  const [testEmail, setTestEmail] = useState("");
+  const [testPassword, setTestPassword] = useState("");
+  const [testLogging, setTestLogging] = useState(false);
+  const [testError, setTestError] = useState("");
+  const [showTestLogin, setShowTestLogin] = useState(true);
+
+  const handleTestLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTestError("");
+
+    if (!testEmail.trim() || !testPassword.trim()) {
+      setTestError("Please enter email and password.");
+      return;
+    }
+
+    setTestLogging(true);
+    const supabase = createClient();
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: testEmail.trim(),
+      password: testPassword,
+    });
+
+    if (signInError) {
+      setTestError(signInError.message);
+      setTestLogging(false);
+      return;
+    }
+
+    // Refresh the auth store to pick up the new session
+    // The page will redirect via the auth state listener
+    window.location.href = "/profile";
+  };
 
   const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,6 +206,90 @@ export default function LoginPage() {
             Sign up
           </Link>
         </p>
+
+        {/* Test Login Collapsible */}
+        <div className="mt-8 border-t border-[#e2e2e2] pt-6">
+          <button
+            type="button"
+            onClick={() => setShowTestLogin(!showTestLogin)}
+            className="w-full flex items-center justify-center gap-2 text-sm text-[#74777f] hover:text-[#002147] transition-colors"
+          >
+            <Lock className="w-4 h-4" />
+            <span className="font-medium">
+              {showTestLogin ? "Hide Test Login" : "Test Login (Development Only)"}
+            </span>
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${
+                showTestLogin ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {showTestLogin && (
+            <div className="mt-4 bg-[#f3f3f4] rounded-xl p-5 border border-[#c4c6cf]/40">
+              <p className="font-body text-body-md text-[#44474e] mb-4">
+                Quick sign-in for testing. Create a test user in your{" "}
+                <a
+                  href="https://supabase.com/dashboard"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-[#002147] underline underline-offset-2"
+                >
+                  Supabase Auth dashboard
+                </a>{" "}
+                first, then use those credentials here.
+              </p>
+              <form onSubmit={handleTestLogin} className="space-y-3">
+                <div>
+                  <input
+                    type="email"
+                    placeholder="Test email"
+                    value={testEmail}
+                    onChange={(e) => {
+                      setTestEmail(e.target.value);
+                      setTestError("");
+                    }}
+                    className="w-full bg-white border border-[#c4c6cf] rounded-lg px-4 py-3 font-body text-body-md outline-none transition-all focus:border-[#002147] focus:ring-2 focus:ring-[rgba(0,33,71,0.12)] placeholder:text-[#c4c6cf]"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={testPassword}
+                    onChange={(e) => {
+                      setTestPassword(e.target.value);
+                      setTestError("");
+                    }}
+                    className="w-full bg-white border border-[#c4c6cf] rounded-lg px-4 py-3 font-body text-body-md outline-none transition-all focus:border-[#002147] focus:ring-2 focus:ring-[rgba(0,33,71,0.12)] placeholder:text-[#c4c6cf]"
+                  />
+                </div>
+
+                {testError && (
+                  <p className="text-sm font-medium text-[#ba1a1a]">{testError}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={testLogging}
+                  className="w-full py-3 px-6 rounded-lg font-bold text-sm flex items-center justify-center gap-2 bg-[#002147] text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-70"
+                >
+                  {testLogging ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      Signing in...
+                    </span>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4" />
+                      Sign In with Password
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

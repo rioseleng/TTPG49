@@ -119,7 +119,10 @@ export default function ProfilePage() {
               </div>
             </Link>
 
-            <button className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group border-b border-[#c4c6cf]/20">
+            <Link
+              href="/orders"
+              className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group border-b border-[#c4c6cf]/20"
+            >
               <div className="flex items-center gap-4">
                 <Receipt className="w-5 h-5 text-[#002147]" />
                 <span className="font-body text-body-lg text-[#1a1c1c]">
@@ -132,9 +135,12 @@ export default function ProfilePage() {
                 </span>
                 <ChevronRight className="w-5 h-5 text-[#74777f] group-hover:translate-x-1 transition-transform" />
               </div>
-            </button>
+            </Link>
 
-            <button className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group border-b border-[#c4c6cf]/20">
+            <Link
+              href="/sales-history"
+              className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group border-b border-[#c4c6cf]/20"
+            >
               <div className="flex items-center gap-4">
                 <Tag className="w-5 h-5 text-[#002147]" />
                 <span className="font-body text-body-lg text-[#1a1c1c]">
@@ -142,9 +148,12 @@ export default function ProfilePage() {
                 </span>
               </div>
               <ChevronRight className="w-5 h-5 text-[#74777f] group-hover:translate-x-1 transition-transform" />
-            </button>
+            </Link>
 
-            <button className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group">
+            <Link
+              href="/wishlist"
+              className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group"
+            >
               <div className="flex items-center gap-4">
                 <Heart className="w-5 h-5 text-[#002147]" />
                 <span className="font-body text-body-lg text-[#1a1c1c]">
@@ -152,7 +161,7 @@ export default function ProfilePage() {
                 </span>
               </div>
               <ChevronRight className="w-5 h-5 text-[#74777f] group-hover:translate-x-1 transition-transform" />
-            </button>
+            </Link>
           </div>
         </div>
 
