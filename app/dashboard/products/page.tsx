@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { toProductListing } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
+import { PremiumGuard } from "@/components/PremiumGuard";
 import type { ProductListing } from "@/types";
 
-export default function DashboardProductsPage() {
+function ProductsContent() {
   const router = useRouter();
   const { user, loading, refreshSession } = useAuthStore();
   const [sellerProducts, setSellerProducts] = useState<ProductListing[]>([]);
@@ -119,5 +120,13 @@ export default function DashboardProductsPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function DashboardProductsPage() {
+  return (
+    <PremiumGuard>
+      <ProductsContent />
+    </PremiumGuard>
   );
 }

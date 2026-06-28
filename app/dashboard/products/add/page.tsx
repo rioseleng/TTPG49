@@ -4,12 +4,14 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth-store";
+import { PremiumGuard } from "@/components/PremiumGuard";
 import { ArrowLeft, Bell, Camera, Minus, Plus, Save } from "lucide-react";
 
-export default function AddProductPage() {
+function AddProductForm() {
   const router = useRouter();
   const supabase = createClient();
   const user = useAuthStore((s) => s.user);
+  const tier = useAuthStore((s) => s.tier);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [productName, setProductName] = useState("");
@@ -30,6 +32,11 @@ export default function AddProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (tier !== "PREMIUM") {
+      alert("Only Premium users can add products. Please upgrade.");
+      router.push("/upgrade");
+      return;
+    }
     if (!productName || !price) {
       alert("Product name and price are required.");
       return;
@@ -271,5 +278,13 @@ export default function AddProductPage() {
         </form>
       </main>
     </div>
+  );
+}
+
+export default function AddProductPage() {
+  return (
+    <PremiumGuard>
+      <AddProductForm />
+    </PremiumGuard>
   );
 }

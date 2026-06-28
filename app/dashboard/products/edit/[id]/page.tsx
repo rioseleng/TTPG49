@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
+import { PremiumGuard } from "@/components/PremiumGuard";
 import { ArrowLeft, Bell, Camera, Minus, Plus, Save, Trash2 } from "lucide-react";
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -13,7 +14,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   OTHER: "📦",
 };
 
-export default function EditProductPage() {
+function EditProductForm() {
   const params = useParams();
   const router = useRouter();
   const supabase = createClient();
@@ -356,5 +357,13 @@ export default function EditProductPage() {
         </form>
       </main>
     </div>
+  );
+}
+
+export default function EditProductPage() {
+  return (
+    <PremiumGuard>
+      <EditProductForm />
+    </PremiumGuard>
   );
 }

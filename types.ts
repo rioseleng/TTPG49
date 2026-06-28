@@ -2,15 +2,18 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  tier: "FREE" | "PREMIUM";
   universityId?: string;
   createdAt: Date;
 }
 
-export interface SellerSubscription {
-  sellerId: string;
+export interface PremiumSubscription {
+  id: string;
+  userId: string;
   status: "ACTIVE" | "INACTIVE" | "PENDING";
-  tier: "BASIC" | "PREMIUM";
   expiresAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ProductListing {

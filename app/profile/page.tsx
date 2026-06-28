@@ -12,10 +12,11 @@ import {
   LogOut,
   ChevronRight,
   Pencil,
+  Crown,
 } from "lucide-react";
 
 export default function ProfilePage() {
-  const { user, loading, refreshSession, logout } = useAuthStore();
+  const { user, loading, refreshSession, logout, tier, fetchUserTier } = useAuthStore();
   const supabase = createClient();
   const [profile, setProfile] = useState<{
     full_name: string;
@@ -25,6 +26,12 @@ export default function ProfilePage() {
   useEffect(() => {
     refreshSession();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserTier();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -87,9 +94,16 @@ export default function ProfilePage() {
           {displayEmail}
         </p>
         <div className="flex gap-3 mt-4">
-          <span className="bg-[#e8e8e8] text-[#44474e] px-3 py-1 rounded-xl font-label text-label-md">
-            4.9 ★ (12 Reviews)
-          </span>
+          {tier === "PREMIUM" ? (
+            <span className="bg-[#fdc34d] text-[#715000] px-3 py-1 rounded-xl font-label text-label-md flex items-center gap-1">
+              <Crown className="w-4 h-4" />
+              Premium
+            </span>
+          ) : (
+            <span className="bg-[#e8e8e8] text-[#44474e] px-3 py-1 rounded-xl font-label text-label-md">
+              Free Tier
+            </span>
+          )}
         </div>
       </section>
 
@@ -101,23 +115,43 @@ export default function ProfilePage() {
             Activity
           </h3>
           <div className="bg-white rounded-xl overflow-hidden border border-[#c4c6cf]/30 shadow-[0px_4px_12px_rgba(0,33,71,0.08)]">
-            <Link
-              href="/dashboard"
-              className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group border-b border-[#c4c6cf]/20"
-            >
-              <div className="flex items-center gap-4">
-                <Store className="w-5 h-5 text-[#002147]" />
-                <span className="font-body text-body-lg text-[#1a1c1c] font-bold">
-                  Seller Dashboard
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-[#002147] text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
-                  SELLER
-                </span>
-                <ChevronRight className="w-5 h-5 text-[#74777f] group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
+            {tier === "PREMIUM" ? (
+              <Link
+                href="/dashboard"
+                className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group border-b border-[#c4c6cf]/20"
+              >
+                <div className="flex items-center gap-4">
+                  <Store className="w-5 h-5 text-[#002147]" />
+                  <span className="font-body text-body-lg text-[#1a1c1c] font-bold">
+                    Seller Dashboard
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-[#fdc34d] text-[#715000] px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    PREMIUM
+                  </span>
+                  <ChevronRight className="w-5 h-5 text-[#74777f] group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            ) : (
+              <Link
+                href="/upgrade"
+                className="w-full flex items-center justify-between p-4 hover:bg-[#f3f3f4] transition-colors group border-b border-[#c4c6cf]/20"
+              >
+                <div className="flex items-center gap-4">
+                  <Crown className="w-5 h-5 text-[#fdc34d]" />
+                  <span className="font-body text-body-lg text-[#1a1c1c] font-bold">
+                    Upgrade to Premium
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-[#fdc34d] text-[#715000] px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    SELL
+                  </span>
+                  <ChevronRight className="w-5 h-5 text-[#74777f] group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            )}
 
             <Link
               href="/orders"

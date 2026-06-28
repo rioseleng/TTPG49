@@ -49,6 +49,10 @@ function CheckoutContent() {
           .eq("id", resumeOrderId)
           .single();
         if (order) {
+          if (order.status !== "PENDING") {
+            router.push(`/checkout/success?order_id=${resumeOrderId}`);
+            return;
+          }
           setExistingOrderId(order.id);
           setDeliveryLocation(order.delivery_location ?? "");
           setDeliveryNote(order.delivery_note ?? "");

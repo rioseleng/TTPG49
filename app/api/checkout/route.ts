@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createServerSupabase } from "@/lib/supabase-server";
 
 export async function POST(request: Request) {
   try {
@@ -9,6 +10,18 @@ export async function POST(request: Request) {
         { error: "Missing required fields: amount, orderId" },
         { status: 400 },
       );
+    }
+
+    const supabase = await createServerSupabase();
+    const { data: order } = await supabase
+      .from("orders")
+      .select("status")
+      .eq("id", orderId)
+      .single();
+
+    if (order && order.status !== "PENDING") {
+      const successUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/checkout/success?order_id=${orderId}`;
+      return NextResponse.json({ url: successUrl });
     }
 
     const redirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/checkout/success?order_id=${orderId}`;

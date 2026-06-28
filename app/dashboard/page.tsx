@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus, TrendingUp, Edit3, Package, Truck, Check, Camera, X } from "lucide-react";
+import { ArrowLeft, Plus, Edit3, Package, Truck, Check, Camera, X, Crown } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { toProductListing } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
+import { PremiumGuard } from "@/components/PremiumGuard";
 import type { ProductListing } from "@/types";
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -17,9 +18,9 @@ const CATEGORY_ICONS: Record<string, string> = {
   OTHER: "📦",
 };
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
-  const { user, loading, refreshSession } = useAuthStore();
+  const { user, loading, refreshSession, subscription } = useAuthStore();
   const setHideNavbar = useUIStore((s) => s.setHideNavbar);
   const setHideBottomNav = useUIStore((s) => s.setHideBottomNav);
   const [myProducts, setMyProducts] = useState<ProductListing[]>([]);
@@ -187,6 +188,31 @@ export default function DashboardPage() {
           <div className="w-6" />
         </div>
       </header>
+
+      {/* Subscription Banner */}
+      {subscription && (
+        <div className="mx-4 mt-3 bg-[#fdc34d]/15 border border-[#fdc34d]/40 rounded-xl px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Crown className="w-5 h-5 text-[#715000]" />
+            <div>
+              <p className="font-bold text-[#715000] text-sm">
+                Premium Plan
+              </p>
+              <p className="text-[#715000]/70 text-xs">
+                Expires {new Date(subscription.expiresAt).toLocaleDateString()}
+                {" · "}
+                {Math.ceil((new Date(subscription.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/upgrade"
+            className="text-[#715000] font-bold text-xs underline underline-offset-2"
+          >
+            Manage
+          </Link>
+        </div>
+      )}
 
       <div className="px-4 pt-4 pb-4">
         <p className="font-body text-body-md text-[#44474e]">
@@ -475,5 +501,13 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <PremiumGuard>
+      <DashboardContent />
+    </PremiumGuard>
   );
 }
