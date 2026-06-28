@@ -10,6 +10,7 @@ import { useUIStore } from "@/store/ui-store";
 import { useAuthStore } from "@/store/auth-store";
 import { useWishlistStore } from "@/store/wishlist-store";
 import { ArrowLeft, Heart, Share2, Star, ShoppingCart, CreditCard } from "lucide-react";
+import { ChatDrawer } from "@/components/chat/ChatDrawer";
 
 const CATEGORY_ICONS: Record<string, string> = {
   FOOD: "🍪",
@@ -26,6 +27,7 @@ export default function ProductDetailPage() {
   const { wishlistIds, refresh, toggle } = useWishlistStore();
   const [product, setProduct] = useState<ProductListing | null>(null);
   const [loading, setLoading] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     refreshSession();
@@ -165,7 +167,10 @@ export default function ProductDetailPage() {
               </div>
             </div>
           </div>
-          <button className="px-4 py-2 border-2 border-[#000a1e] text-[#000a1e] rounded-lg font-label text-[12px] font-semibold leading-4 tracking-[0.05em] hover:bg-[#002147] hover:text-white transition-all active:scale-95 whitespace-nowrap">
+          <button
+            onClick={() => setChatOpen(true)}
+            className="px-4 py-2 border-2 border-[#000a1e] text-[#000a1e] rounded-lg font-label text-[12px] font-semibold leading-4 tracking-[0.05em] hover:bg-[#002147] hover:text-white transition-all active:scale-95 whitespace-nowrap"
+          >
             Message Seller
           </button>
         </div>
@@ -240,6 +245,13 @@ export default function ProductDetailPage() {
           </button>
         </div>
       </div>
+
+      <ChatDrawer
+        open={chatOpen}
+        onOpenChange={setChatOpen}
+        initialSellerId={product.sellerId}
+        initialProductId={product.id}
+      />
     </div>
   );
 }

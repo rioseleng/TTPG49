@@ -16,6 +16,33 @@ export interface PremiumSubscription {
   updatedAt: Date;
 }
 
+export interface Conversation {
+  id: string;
+  buyerId: string;
+  sellerId: string;
+  productId?: string;
+  createdAt: string;
+  updatedAt: string;
+  otherUserName?: string;
+  lastMessage?: string;
+  lastMessageTime?: string;
+  unreadCount?: number;
+}
+
+export interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface MessageRead {
+  userId: string;
+  conversationId: string;
+  lastReadAt: string;
+}
+
 export interface ProductListing {
   id: string;
   sellerId: string;
